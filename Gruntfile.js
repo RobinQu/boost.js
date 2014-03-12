@@ -10,52 +10,23 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON("package.json"),
     
-    // Connect middleware
-    connect: {
-      options: {
-        port: 9000,
-        hostname: "0.0.0.0",
-        livereload: 35729
-        
+    karma: {
+      unit: {
+        configFile: "karma.conf.js"
       },
-      test: {
-        options: {
-          base: [
-            "src",
-            "test"
-          ]
-        }
-      }
-    },
-    
-    watch: {
-      jstest: {
-        files: ["test/spec/{,*/}*.js"],
-        tasks: ["test:watch"]
-      }
-    },
-    
-    // Mocha testing framework configuration options
-    mocha: {
-      all: {
-        options: {
-          run: true,
-          urls: ["http://<%= connect.test.options.hostname %>:<%= connect.test.options.port %>/index.html"]
-        }
+      
+      ci: {
+        configFile: "karma.conf.js",
+        browsers: ["PhantomJS"],
+        singleRun: true
       }
     }
     
   });
 
-
   // Default task(s).
   grunt.registerTask("default", "test");
   
-  grunt.registerTask("test", function(target) {
-    grunt.task.run([
-      "connect:test",
-      "mocha"
-    ]);
-  });
+  grunt.registerTask("test", ["karma:unit"]);
 
 };
