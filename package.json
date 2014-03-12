@@ -1,0 +1,36 @@
+{
+  "name": "boost.js",
+  "version": "0.1.0",
+  "description": "Buildbot for boost.js",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha ./test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RobinQu/boost.js"
+  },
+  "keywords": [
+    "javascript",
+    "boost.js",
+    "mobile-first"
+  ],
+  "author": "RobinQu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RobinQu/boost.js/issues"
+  },
+  "homepage": "https://github.com/RobinQu/boost.js",
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "time-grunt": "~0.2.0",
+    "grunt-contrib-jshint": "~0.6.3",
+    "grunt-contrib-nodeunit": "~0.2.0",
+    "grunt-contrib-uglify": "~0.2.2",
+    "karma": "~0.12.0",
+    "grunt-karma": "~0.8.0"
+  }
+}
