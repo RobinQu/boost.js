@@ -1,0 +1,23 @@
+{
+  "name": "boost.js",
+  "version": "0.1.0",
+  "authors": [
+    "RobinQu <robinqu@gmail.com>"
+  ],
+  "description": "Mobile-first, client-side Javascript utility library",
+  "main": "build/boost.js",
+  "keywords": [
+    "Javascript",
+    "mobile",
+    "html5"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/RobinQu/boost.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
