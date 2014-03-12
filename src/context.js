@@ -1,14 +1,36 @@
 define(function() {
-  var slice = Array.prototype.slice.call.bind(Array.prototype.slice),
-  context = {
+  var context = {
     win: window,
     undefined: undefined,
     doc: window.document,
-    slice: slice,
     noop: function() {}
   };
+  //https://code.google.com/p/phantomjs/issues/detail?id=522
+  context.bind = function(fn, context) {
+    var slice = Array.prototype.slice,
+        args = slice.call(arguments, 2);
+    if(Function.prototype.bind) {
+      args.unshift(context);
+      return fn.bind.apply(fn, args);
+    }
+    
+    if (args.length) {
+      return function() {
+          return arguments.length
+              ? fn.apply(context, args.concat(slice.call(arguments)))
+              : fn.apply(context, args);
+      };
+    }
+    return function() {
+      return arguments.length
+          ? fn.apply(context, arguments)
+          : fn.call(context);
+    };
+  };
+  context.slice = context.bind(Array.prototype.slice.call, Array.prototype.slice);
+  
   context.mixin = function mixin() {
-    var args = slice(arguments),
+    var args = context.slice(arguments),
         target = args.shift(),
         ret;
     if(!target) {return;}
