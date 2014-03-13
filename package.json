@@ -50,7 +50,6 @@
     "grunt-requirejs": "~0.4.1",
     "grunt-contrib-clean": "~0.5.0",
     "grunt-build-control": "~0.1.2",
-    "grunt-release": "~0.7.0",
-    "grunt-release-component": "0.0.3"
+    "grunt-release": "~0.7.0"
   }
 }

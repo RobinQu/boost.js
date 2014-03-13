@@ -86,6 +86,15 @@ module.exports = function(grunt) {
           remote: "git@github.com:RobinQu/boost.js.git"
         }
       }
+    },
+    
+    release: {
+      options: {
+        file: "bower.json",
+        npm: false,
+        npmtag: false,
+        folder: "build"
+      }
     }
     
   });
@@ -97,6 +106,6 @@ module.exports = function(grunt) {
   
   grunt.registerTask("test", ["karma:unit"]);
   
-  grunt.registerTask("publish", ["build", "buildcontrol:deploy"]);
+  grunt.registerTask("publish", ["build", "buildcontrol:deploy", "release"]);
 
 };
