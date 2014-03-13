@@ -1,5 +1,7 @@
 module.exports = function(grunt) {
   
+  var pkg = grunt.file.readJSON("package.json");
+  
   // Load all avaiable tasks
   require("load-grunt-tasks")(grunt);
   
@@ -8,7 +10,7 @@ module.exports = function(grunt) {
 
   // Project configuration.
   grunt.initConfig({
-    pkg: grunt.file.readJSON("package.json"),
+    pkg: pkg,
     
     karma: {
       unit: {
@@ -80,7 +82,7 @@ module.exports = function(grunt) {
       deploy: {
         options: {
           branch: "dist",
-          tag: "<%= pkg.version %>",
+          tag: pkg.version,
           remote: "git@github.com:RobinQu/boost.js.git"
         }
       }
