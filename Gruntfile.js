@@ -19,6 +19,17 @@ module.exports = function(grunt) {
         configFile: "karma.conf.js",
         browsers: ["PhantomJS"],
         singleRun: true
+      },
+      
+      build: {
+        configFile: "karma.conf.js",
+        browsers: ["PhantomJS"],
+        singleRun: true,
+        files: [
+          {pattern: "build/boost.min.js", included: true},
+          {pattern: "test/test-build.js"},
+          {pattern: "test/**/*.js", included: false}
+        ]
       }
     },
     
@@ -36,7 +47,10 @@ module.exports = function(grunt) {
           insertRequire: ["main"],
           optimize: "none",
           // skipModuleInsertion: true,
-          wrap: true,
+          wrap: {
+            startFile: "misc/start.js.frag",
+            endFile: "misc/end.js.frag"
+          },
           // generateSourceMaps: true,
           findNestedDependencies: true,
           almond: true,
@@ -54,15 +68,33 @@ module.exports = function(grunt) {
           "build/boost.min.js": ["build/boost.js"]
         }
       }
+    },
+    
+    buildcontrol: {
+      options: {
+        dir: "build",
+        commit: true,
+        push: true,
+        message: "Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%"
+      },
+      deploy: {
+        options: {
+          branch: "dist",
+          tag: "<%= pkg.version %>",
+          remote: "git@github.com:RobinQu/boost.js.git"
+        }
+      }
     }
     
   });
 
   // Default task(s).
-  grunt.registerTask("default", "test");
+  grunt.registerTask("default", "build");
   
-  grunt.registerTask("build", ["clean:compile", "requirejs:compile", "uglify:compile"]);
+  grunt.registerTask("build", ["clean:compile", "requirejs:compile", "uglify:compile", "karma:build"]);
   
   grunt.registerTask("test", ["karma:unit"]);
+  
+  grunt.registerTask("publish", ["build", "buildcontrol:deploy"]);
 
 };

@@ -5,7 +5,7 @@
     "RobinQu <robinqu@gmail.com>"
   ],
   "description": "Mobile-first, client-side Javascript utility library",
-  "main": "build/boost.js",
+  "main": "build/boost.min.js",
   "keywords": [
     "Javascript",
     "mobile",

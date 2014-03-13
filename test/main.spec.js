@@ -8,6 +8,8 @@ define(["boost"], function(boost) {
       expect(boost).to.be.ok;
       expect(boost.on).to.be.ok;
     });
+    
+    it("should be more fun");
   });
   
 });
