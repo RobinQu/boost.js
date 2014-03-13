@@ -2,4 +2,3 @@ node_modules
 tmp
 *.log
 bower_components
-build
