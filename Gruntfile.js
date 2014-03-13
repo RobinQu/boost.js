@@ -20,12 +20,48 @@ module.exports = function(grunt) {
         browsers: ["PhantomJS"],
         singleRun: true
       }
+    },
+    
+    clean: {
+      compile: ["build/**/*"]
+    },
+    
+    requirejs: {
+      compile: {
+        options: {
+          baseUrl: "src",
+          out: "build/boost.js",
+          name: "main",
+          include: ["main"],
+          insertRequire: ["main"],
+          optimize: "none",
+          // skipModuleInsertion: true,
+          wrap: true,
+          // generateSourceMaps: true,
+          findNestedDependencies: true,
+          almond: true,
+          preserveLicenseComments: false
+        }
+      }
+    },
+    
+    uglify: {
+      compile: {
+        options: {
+          sourceMap: true
+        },
+        files: {
+          "build/boost.min.js": ["build/boost.js"]
+        }
+      }
     }
     
   });
 
   // Default task(s).
   grunt.registerTask("default", "test");
+  
+  grunt.registerTask("build", ["clean:compile", "requirejs:compile", "uglify:compile"]);
   
   grunt.registerTask("test", ["karma:unit"]);
 
