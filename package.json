@@ -7,7 +7,9 @@
     "test": "test"
   },
   "scripts": {
-    "test": "grunt karma:ci"
+    "test": "grunt karma:ci",
+    "build": "grunt build",
+    "publish": "grunt publish"
   },
   "repository": {
     "type": "git",
