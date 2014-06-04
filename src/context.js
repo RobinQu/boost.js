@@ -16,15 +16,11 @@ define(function() {
     
     if (args.length) {
       return function() {
-          return arguments.length
-              ? fn.apply(context, args.concat(slice.call(arguments)))
-              : fn.apply(context, args);
+          return arguments.length ? fn.apply(context, args.concat(slice.call(arguments))) : fn.apply(context, args);
       };
     }
     return function() {
-      return arguments.length
-          ? fn.apply(context, arguments)
-          : fn.call(context);
+      return arguments.length ? fn.apply(context, arguments) : fn.call(context);
     };
   };
   context.slice = context.bind(Array.prototype.slice.call, Array.prototype.slice);
@@ -43,5 +39,30 @@ define(function() {
     }, target);
     return ret;
   };
+  
+  context.generateGuid = (function() {
+    var i = 0;
+    return function() {
+      return i++;
+    };
+  }());
+  
+  context.hashFor = function() {
+    var i, len, obj, h = [];
+    for(i=0,len=arguments.length; i<len; i++) {
+      obj = arguments[i];
+      if(obj.hash && typeof obj.hash === "function") {
+        h.push(obj.hash());
+      } else {
+        h.push(context.guidFor(obj));
+      }
+    }
+    return h.join("");
+  };
+  
+  context.guidFor = function(obj) {
+    
+  };
+  
   return context;
 });
