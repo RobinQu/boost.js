@@ -40,12 +40,17 @@ define(function() {
     return ret;
   };
   
-  context.generateGuid = (function() {
+  context.getGlobalID = (function() {
     var i = 0;
     return function() {
       return i++;
     };
-  }());
+  }()); 
+  
+  context.generateGuid = function(obj, prefix) {
+    obj.guid = (prefix || "") + context.getGlobalID();
+    return obj.guid;
+  };
   
   context.hashFor = function() {
     var i, len, obj, h = [];
@@ -60,8 +65,34 @@ define(function() {
     return h.join("");
   };
   
+  var guidCache = {};
+  
   context.guidFor = function(obj) {
-    
+    var type = typeof obj, c, ret;
+    if(obj === undefined) {
+      return "undefined";
+    }
+    if(obj === null) {
+      return "null";
+    }
+    if(type === "number" || type === "string") {
+      c = guidCache[type];
+      ret = c[obj];
+      if(!ret) {
+        ret = type + context.generateGuid();
+        c[obj] = ret;
+      }
+      return ret;
+    }
+    if(type === "boolean") {
+      return obj ? type + "_true" : type + "_false";
+    }
+    if(obj.guid) {
+      return obj.guid;
+    }
+    // get internal type
+    type = Object.prototype.toString.call(obj).slice(8, -1);
+    return context.generateGuid(obj, type);
   };
   
   return context;
