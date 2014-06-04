@@ -1,6 +1,7 @@
-define(function() {
+define(["./misc"], function(misc) {
+
   return function mixin() {
-    var args = context.slice(arguments),
+    var args = misc.slice(arguments),
         target = args.shift(),
         ret;
     if(!target) {return;}

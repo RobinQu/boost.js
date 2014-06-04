@@ -6,7 +6,7 @@ define(["boost"], function(boost) {
   describe("boost.js", function() {
     it("should exist in global", function() {
       expect(boost).to.be.ok;
-      expect(boost.on).to.be.ok;
+      expect(boost.Event).to.be.ok;
     });
     
     it("should be more fun");

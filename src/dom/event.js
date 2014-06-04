@@ -1,4 +1,4 @@
-define(["../core", "./data"], function(boost, $data) {
+define(["core", "./data"], function(boost, $data) {
   var addEvent, removeEvent, normalizeEvent, NO_BUBBLES;
   
   NO_BUBBLES = ["focus", "change", "submit"];
