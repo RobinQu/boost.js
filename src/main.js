@@ -1,9 +1,6 @@
 define([
-  "./context",
-  "./ready",
-  "./selector",
-  "./events",
-  "./ready"
+  "./core",
+  "./dom"
 ], function(boost) {
   return boost;
 });

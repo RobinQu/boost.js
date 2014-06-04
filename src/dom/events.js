@@ -1,9 +1,9 @@
-define(["./context", "./data"], function(boost, $data) {
-  var E, addEvent, removeEvent, normalizeEvent, NO_BUBBLES;
+define(["../core", "./data"], function(boost, $data) {
+  var addEvent, removeEvent, normalizeEvent, NO_BUBBLES;
   
   NO_BUBBLES = ["focus", "change", "submit"];
   
-  E = function(originalEvent) {
+  boost.Event = function(originalEvent) {
     var i, len, k;
     if(originalEvent) {//copy attributes
       for(i=0,len=Event._props; i<len; i++) {
@@ -38,8 +38,7 @@ define(["./context", "./data"], function(boost, $data) {
     
   };
   
-  
-  E._props = "altKey attrChange attrName bubbles button cancelable charCode clientX clientY ctrlKey currentTarget data detail eventPhase fromElement handler keyCode metaKey newValue originalTarget pageX pageY prevValue relatedNode relatedTarget screenX screenY shiftKey srcElement target timeStamp toElement type view which touches targetTouches changedTouches animationName elapsedTime dataTransfer".split(" ");
+  boost.Event._props = "altKey attrChange attrName bubbles button cancelable charCode clientX clientY ctrlKey currentTarget data detail eventPhase fromElement handler keyCode metaKey newValue originalTarget pageX pageY prevValue relatedNode relatedTarget screenX screenY shiftKey srcElement target timeStamp toElement type view which touches targetTouches changedTouches animationName elapsedTime dataTransfer".split(" ");
   
   addEvent = function(elem, type, capture) {
     var listener = $data(elem, "_listener");
@@ -76,7 +75,11 @@ define(["./context", "./data"], function(boost, $data) {
   };
   
   
-  context.merge(E, {
+  boost.mixin(boost.Event, {
+    
+    create: function(e) {
+      return new boost.Event(e);
+    },
     
     add: function(eventType, elem, hanlder, capture) {
       if(elem.length > 0) {
@@ -255,5 +258,35 @@ define(["./context", "./data"], function(boost, $data) {
     
   });
   
-  return E;
+  boost.Event.prototype = {
+    
+    preventDefault: function() {
+      var event = this.originalEvent;
+      if(event) {
+        if(event.preventDefault) {
+          event.preventDefault();
+        } else {//IE
+          event.returnValue = false;
+        }
+      }
+      return this;
+    },
+    
+    stopPropgation: function() {
+      var event = this.originalEvent;
+      if(event) {
+        if(event.stopPropgation) {
+          event.stopPropgation();
+        } else {
+          event.cancleBubble = true;
+        }
+      }
+      return this;
+    },
+    
+    normalized: true
+    
+  };
+  
+  return boost.Event;
 });
