@@ -11,7 +11,6 @@ define(["boost"], function(boost) {
       expect(boost.data).to.be.ok;
     });
     
-    it("should be more fun");
   });
   
 });
