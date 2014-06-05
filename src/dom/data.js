@@ -13,10 +13,10 @@ define(["../core"], function(boost) {
     if(entryKey) {
       data = cache[entryKey];
     } else {
-      elem.dataset[cacheKey] = uuid++;
+      uuid++
+      elem.dataset[cacheKey] = uuid;
       data = cache[uuid] = {};
     }
-    
     if(value || value === null) {//setter
       data[key] = value;
       return value;
