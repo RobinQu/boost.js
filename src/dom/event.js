@@ -1,4 +1,4 @@
-define(["core", "./data"], function(boost, $data) {
+define(["core", "./data", "./ready"], function(boost, $data, $ready) {
   var addEvent, removeEvent, normalizeEvent, NO_BUBBLES;
   
   NO_BUBBLES = ["focus", "change", "submit"];
@@ -44,11 +44,10 @@ define(["core", "./data"], function(boost, $data) {
     var listener = $data(elem, "_listener");
     
     if(!listener) {
-      listener = $data(elem, "_listener", function() {
+      listener = $data(elem, "_listener", function() {//a shared handler that handles all event stored on the element
         return Events.handle(elem, arguments);
       });
     }
-    
     if(elem.addEventListener) {
       elem.addEventListner(type, listener, !!capture);
     } else {
@@ -58,9 +57,10 @@ define(["core", "./data"], function(boost, $data) {
   
   removeEvent = function(elem, type) {
     var listener = $data(elem, "_listener");
+    
     if(listener) {
       if(elem.removeEventListener) {
-        elem.removeEventListener(type, method);
+        elem.removeEventListener(type, method, false);
       } else {
         elem.detachEvent("on" + type.toLoserCase(), method);
       }
@@ -69,9 +69,9 @@ define(["core", "./data"], function(boost, $data) {
   
   normalizeEvent = function(event) {
     if(window.event === event) {
-      return new E(event);
+      return new boost.Event(event);
     }
-    return event.normalized ? event : new E(event);
+    return event.normalized ? event : new boost.Event(event);
   };
   
   

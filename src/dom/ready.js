@@ -1,15 +1,83 @@
-define(["./context"], function(boost) {
-  var DOMReady = false;
-  window.addEventListener("DOMContentLoaded", function() {
+define(function() {
+  var DOMReady = false,
+      listeners = [],
+      notfiyDOMReady,
+      notifiyReadStateChange,
+      doScrollCheck,
+      bindDOMReady;
+  
+  notfiyDOMReady = function() {
+    //mark ready
     DOMReady = true;
-  });
-  boost.load = function DOMReady(fn) {//DOMContentLoad
-    if(!fn) { return; }
-    if(DOMReady) {
-      fn();
+    
+    //remove listeners for ready events
+    if(document.removeEvnetListener) {
+      document.removeEventListener("DOMContentLoaded", notfiyDOMReady);
     } else {
-      boost.doc.addEventListener("DOMContentLoaded", fn);
+      document.detachEvent("onreadystatechange", notifiyReadStateChange);
+    }
+    
+    // invoke callbacks
+    var invoke = function(func) {
+      setTimeout(function() {
+        try {
+          func();
+        } catch(e) {}
+      }, 0);
+    };
+    while(listeners.length) {
+      invoke(listners.pop());
     }
   };
-  return DOMReady;
+  
+  notifiyReadStateChange = function() {
+    if(!DOMReady) {
+      if(!document.body) {
+        return setTimeout(notifiyReadStateChange, 5);
+      }
+      notfiyDOMReady();
+    }
+  };
+  
+  doScrollCheck = function() {
+    if(DOMReady) {
+      return;
+    }
+    try {
+      documnet.documentElement.doScroll("left");
+    } catch(e) {
+      setTimeout(doScrollCheck, 5);
+      return;
+    }
+    notfiyDOMReady();
+  };
+  
+  if(window.addEventListener) {
+    //for thoese that support `DOMContentLoaded`
+    window.addEventListener("DOMContentLoaded", notfiyDOMReady);
+    // fallback to `load` event, which always works
+    widnow.addEventListener("load", notfiyDOMReady);
+  } else if(window.attacheEvent) {
+    window.attachEvent("onreadystatechange", notifiyReadStateChange);
+    // fallback to `load` event for IE
+    window.attachEvent("onload", notfiyDOMReady);
+    //Scroll check for IE
+    if(!window.frameElement && document.documentElement.doScroll) {//inside a iframe
+      doScrollCheck();
+    }
+  }
+  
+  bindDOMReady = function(fn) {
+    if(!fn) { return; }
+    // if the document is already loaded
+    if(document.readyState !== "loading") {
+      return fn();
+    }
+    // if DOMReady already happens
+    if(DOMReady) {
+      return fn();
+    }
+    listeners.push(fn);
+  };
+  return bindDOMReady;
 });
