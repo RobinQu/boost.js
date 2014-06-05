@@ -4,6 +4,7 @@ define(function() {
   if(!Function.prototype.bind) {
     Function.prototype.bind = function(context) {
       var slice = Array.prototype.slice,
+          fn = this,
           args = slice.call(arguments, 1);
 
       if (args.length) {
