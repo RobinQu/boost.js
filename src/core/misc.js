@@ -1,6 +1,9 @@
 define(["./proto"], function() {
   return {
     slice: Array.prototype.slice.call.bind(Array.prototype.slice),
-    noop: function() {}
+    noop: function() {},
+    classType: function(obj) {
+      return Object.prototype.toString.call(obj).slice(8, -1);
+    }
   };
 });
