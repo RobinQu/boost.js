@@ -1,5 +1,4 @@
-define(function() {
-  
-  return function(elem, key, value) {};
-  
+define(["../core"], function(boost) {
+  boost.data = function(elem, key, value) {};
+  return boost.data;
 });

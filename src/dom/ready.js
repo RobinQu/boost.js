@@ -1,4 +1,4 @@
-define(function() {
+define(["../core"], function(boost) {
   var DOMReady = false,
       listeners = [],
       notfiyDOMReady,
@@ -16,17 +16,18 @@ define(function() {
     } else {
       document.detachEvent("onreadystatechange", notifiyReadStateChange);
     }
-    
     // invoke callbacks
     var invoke = function(func) {
-      setTimeout(function() {
-        try {
-          func();
-        } catch(e) {}
-      }, 0);
+      // setTimeout(function() {
+      //   
+      // }, 0);
+      try {
+        func();
+      } catch(e) {}
     };
+    //FIFO
     while(listeners.length) {
-      invoke(listners.pop());
+      invoke(listners.shift());
     }
   };
   
@@ -56,7 +57,7 @@ define(function() {
     //for thoese that support `DOMContentLoaded`
     window.addEventListener("DOMContentLoaded", notfiyDOMReady);
     // fallback to `load` event, which always works
-    widnow.addEventListener("load", notfiyDOMReady);
+    window.addEventListener("load", notfiyDOMReady);
   } else if(window.attacheEvent) {
     window.attachEvent("onreadystatechange", notifiyReadStateChange);
     // fallback to `load` event for IE
@@ -79,5 +80,8 @@ define(function() {
     }
     listeners.push(fn);
   };
+  
+  boost.ready = bindDOMReady;
+  
   return bindDOMReady;
 });

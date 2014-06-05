@@ -1,6 +1,6 @@
-define(["./context"], function(boost) {
+define(["../core"], function(boost) {
   var $ = function (selector) {
-    return boost.doc.querySelectorAll(selector);
+    return document.querySelectorAll(selector);
   };
   boost.$ = $;
   return $;
