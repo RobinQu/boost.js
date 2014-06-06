@@ -10,7 +10,7 @@ define(function() {
   Logger.levels = ["INFO", "DEBUG", "WARN", "ERROR"];
   
   /* level, content */
-  Logger.prototype.log = function () {
+  Logger.prototype.write = function () {
     //do nothing
   };
   
@@ -22,9 +22,11 @@ define(function() {
     };
   });
   
+  Logger.prototype.log = Logger.prototype.info;
+  
   Logger.create = function(topic, adapter) {
     topic = topic || "";
-    adapter = consoleAdapter;
+    adapter = adapter || consoleAdapter;
     return adapter(topic);
   };
   
@@ -32,8 +34,9 @@ define(function() {
     if(!logger) {
       logger = new Logger();
     }
-    logger.log = function() {
-      
+    logger.write = function(level) {
+      var args = Array.prototype.slice(arguments, 1);
+      console[level].apply(console, args);
     };
     return logger;
   };
