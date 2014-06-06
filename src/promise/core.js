@@ -1,7 +1,7 @@
 // A possible implemenation of ES6 promise
 define(["../core"], function(boost) {
-
-  var logger = boost.getLogger("promise");
+  
+  var logger = boost.Logger.instrument("Promise");
   
   var Deferred = function(onFulfilled, onRejected, resolve, reject) {
     this.onFulfilled = onFulfilled;
@@ -82,7 +82,6 @@ define(["../core"], function(boost) {
   };
   
   PromiseA.prototype._handle = function (deferred) {
-    // logger.log(this.state);
     if(this.state === null) {
       logger.log("queue");
       this.deferred.push(deffered);
