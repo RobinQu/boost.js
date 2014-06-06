@@ -1,7 +1,7 @@
 // A possible implemenation of ES6 promise
 define(["../core"], function(boost) {
   
-  var logger = boost.Logger.instrument("Promise");
+  var logger = boost.Logger.instrument("promise");
   
   var Deferred = function(onFulfilled, onRejected, resolve, reject) {
     this.onFulfilled = onFulfilled;

@@ -14,7 +14,7 @@ define(function() {
   };
   
   Logger.prototype.enable = function () {
-    this.enabeld = true;
+    this.enabled = true;
     return this;
   };
   

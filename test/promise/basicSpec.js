@@ -2,6 +2,8 @@
 
 define(["boost"], function(boost) {
   
+  boost.instrument("promise");
+  
   it("should resolve", function(done) {
     var a = new boost.Promise(function(resolve, reject) {
       resolve(3);
