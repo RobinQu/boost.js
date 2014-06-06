@@ -20,6 +20,7 @@ define(function() {
     return this;
   };
   
+  Logger._instance = null;
   
   Logger.levels = ["INFO", "DEBUG", "WARN", "ERROR"];
   
@@ -27,6 +28,14 @@ define(function() {
   Logger.prototype.write = function (level, data) {
     //do nothing
   };
+  
+  // Logger.prototype.addFilter = function () {
+  //   this.filter.push(Array.prototype.slice.call(arguments));
+  // };
+  // 
+  // Logger.prototype.resetFilter = function () {
+  //   this.filter.length = 0;
+  // };
   
   Logger.levels.forEach(function(level) {
     level = level.toLowerCase();
@@ -47,23 +56,30 @@ define(function() {
     if(!logger) {
       logger = new Logger();
     }
-    logger.write = function(level, data) {
-      if(typeof data[0] === "string") {//do interpolation
-        data[0] = "[%s] %s " + data[0];
-        data.splice(1, 0, level, this.topic);
-      } else {
-        data.unshift("[" + level + "]");
-        data.unshift(this.topic);
-      }
-      if(console[level]) {
-        console[level].apply(console, data);
-      }
-    };
+    if(window.console) {
+      logger.write = function(level, data) {
+        if(typeof data[0] === "string") {//do interpolation
+          data[0] = "[%s] %s " + data[0];
+          data.splice(1, 0, level, this.topic);
+        } else {
+          data.unshift("[" + level + "]");
+          data.unshift(this.topic);
+        }
+        if(console[level]) {
+          console[level].apply(console, data);
+        }
+      };
+    }
     return logger;
   };
   
   return {
     Logger: Logger,
-    getLogger: Logger.create
+    getLogger: function() {
+      if(!Logger._instance) {
+        Logger._instance = Logger.create();
+      }
+      return Logger._instance;
+    }
   };
 });

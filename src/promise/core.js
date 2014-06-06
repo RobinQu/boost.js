@@ -3,8 +3,8 @@ define(["../core"], function(boost) {
 
   var logger = boost.getLogger("promise");
   
-  var Deferred = function(onFullilled, onRejected, resolve, reject) {
-    this.onFullilled = onFullilled;
+  var Deferred = function(onFulfilled, onRejected, resolve, reject) {
+    this.onFulfilled = onFulfilled;
     this.onRejceted = onRejected;
     this.resolve = resolve;
     this.reject = reject;
@@ -49,6 +49,7 @@ define(["../core"], function(boost) {
   };
   
   PromiseA.prototype._resolve = function (newValue) {
+    logger.log("_resolve", newValue);
     try {
       if(newValue === this) {
         throw new Error("Cannot be resolved by self");
@@ -72,6 +73,7 @@ define(["../core"], function(boost) {
   };
   
   PromiseA.prototype._finale = function () {
+    logger.log("_finale");
     var i,len;
     for(i=0,len=this.deferred.length; i<len; i++) {
       this._handle(this.deferred[i]);
@@ -80,11 +82,14 @@ define(["../core"], function(boost) {
   };
   
   PromiseA.prototype._handle = function (deferred) {
+    // logger.log(this.state);
     if(this.state === null) {
+      logger.log("queue");
       this.deferred.push(deffered);
       return;
     }
     setTimeout(function() {
+      logger.log("handle, state:", this.state);
       var cb = this.state ? deferred.onFulfilled : deferred.onRejected,
       ret;
       if(!cb) {
