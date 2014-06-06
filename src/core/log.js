@@ -2,30 +2,43 @@ define(function() {
   var Logger, consoleAdapter;
   
   Logger = function(topic) {
-    this.topic = topic;
+    if(!(this instanceof Logger)) {
+      return Logger.create(topic);
+    }
+    this.topic = topic || "";
     this.enabled = true;
     this.level = "INFO";
   };
   
+  Logger.prototype.enable = function () {
+    this.enabeld = true;
+    return this;
+  };
+  
+  Logger.prototype.disable = function () {
+    this.enabled = false;
+    return this;
+  };
+  
+  
   Logger.levels = ["INFO", "DEBUG", "WARN", "ERROR"];
   
   /* level, content */
-  Logger.prototype.write = function () {
+  Logger.prototype.write = function (level, data) {
     //do nothing
   };
   
   Logger.levels.forEach(function(level) {
-    Logger.prototype[level.toLowerCase()] = function() {
+    level = level.toLowerCase();
+    Logger.prototype[level] = function() {
       var args = Array.prototype.slice.call(arguments, 0);
-      args.unshift(level);
-      return this.write.apply(this, args);
+      return this.write.call(this, level, args);
     };
   });
   
   Logger.prototype.log = Logger.prototype.info;
   
   Logger.create = function(topic, adapter) {
-    topic = topic || "";
     adapter = adapter || consoleAdapter;
     return adapter(topic);
   };
@@ -34,18 +47,23 @@ define(function() {
     if(!logger) {
       logger = new Logger();
     }
-    logger.write = function(level) {
-      var args = Array.prototype.slice(arguments, 1);
-      console[level].apply(console, args);
+    logger.write = function(level, data) {
+      if(typeof data[0] === "string") {//do interpolation
+        data[0] = "[%s] %s " + data[0];
+        data.splice(1, 0, level, this.topic);
+      } else {
+        data.unshift("[" + level + "]");
+        data.unshift(this.topic);
+      }
+      if(console[level]) {
+        console[level].apply(console, data);
+      }
     };
     return logger;
   };
   
   return {
     Logger: Logger,
-    getLogger: Logger.create,
-    adapters: {
-      consoleAdapter: consoleAdapter
-    }
+    getLogger: Logger.create
   };
 });

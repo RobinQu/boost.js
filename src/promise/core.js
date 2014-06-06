@@ -1,5 +1,7 @@
 // A possible implemenation of ES6 promise
-define(function() {
+define(["../core"], function(boost) {
+
+  var logger = boost.getLogger("promise");
   
   var Deferred = function(onFullilled, onRejected, resolve, reject) {
     this.onFullilled = onFullilled;
@@ -20,6 +22,7 @@ define(function() {
   };
   
   PromiseA.prototype._doResolve = function (fn) {
+    logger.log("do resolve");
     var done = false,
         self = this;
     try {
