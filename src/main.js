@@ -1,10 +1,12 @@
 require.config({
-  packages: ["core", "dom"]
+  packages: ["core", "dom", "runtime", "promise"]
 });
 
 define([
   "core",
-  "dom"
+  "dom",
+  "runtime",
+  "promise"
 ], function(boost) {
   if(!window.boost) {
     window.boost = boost;
