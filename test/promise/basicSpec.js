@@ -7,6 +7,7 @@ define(["boost"], function(boost) {
       resolve(3);
     }).then(function(value) {
       expect(value).to.equal(3);
+      done();
     });
   });
   

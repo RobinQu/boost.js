@@ -9,12 +9,12 @@ define(function() {
   };
   
   var PromiseA = function(fn) {
-    if(typeof this !== PromiseA) {
+    if(!(this instanceof PromiseA)) {
       return PromiseA(fn);
     }
     this.state = null;
     this.value = null;
-    this.deffered = [];
+    this.deferred = [];
     
     this._doResolve(fn);
   };
@@ -78,7 +78,7 @@ define(function() {
   
   PromiseA.prototype._handle = function (deferred) {
     if(this.state === null) {
-      this.deffered.push(deffered);
+      this.deferred.push(deffered);
       return;
     }
     setTimeout(function() {
@@ -86,13 +86,13 @@ define(function() {
       ret;
       if(!cb) {
         if(this.state) {
-          deferred.resolve(value);
+          deferred.resolve(this.value);
         } else {
-          deferred.reject(value);
+          deferred.reject(this.value);
         }
       }
       try {
-        ret = cb(value);
+        ret = cb(this.value);
       } catch(e) {
         deferred.reject(e);
         return;
@@ -102,8 +102,9 @@ define(function() {
   };
   
   PromiseA.prototype.then = function (onFulfilled, onRejected) {
+    var self = this;
     return new PromiseA(function(resolve, reject) {
-      handle(new Deferred(onFulfilled, onRejected, resolve, reject));
+      self._handle(new Deferred(onFulfilled, onRejected, resolve, reject));
     });
   };
  
