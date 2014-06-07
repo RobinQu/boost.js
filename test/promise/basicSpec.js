@@ -13,5 +13,15 @@ define(["boost"], function(boost) {
     });
   });
   
+  it("should reject", function(done) {
+    var ex = new Error("foo");
+    new boost.Promise(function(resolve, reject) {
+      reject(ex);
+    }).then(function() {}, function(e) {
+      expect(e.message).to.equal("foo");
+      done();
+    });
+  });
+  
   
 });

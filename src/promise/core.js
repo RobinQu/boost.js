@@ -5,7 +5,7 @@ define(["../core"], function(boost) {
   
   var Deferred = function(onFulfilled, onRejected, resolve, reject) {
     this.onFulfilled = onFulfilled;
-    this.onRejceted = onRejected;
+    this.onRejected = onRejected;
     this.resolve = resolve;
     this.reject = reject;
   };
@@ -14,6 +14,7 @@ define(["../core"], function(boost) {
     if(!(this instanceof PromiseA)) {
       return PromiseA(fn);
     }
+    logger.log("construct");
     this.state = null;
     this.value = null;
     this.deferred = [];
@@ -32,12 +33,12 @@ define(["../core"], function(boost) {
         }
         done = true;
         self._resolve(value);
-      }, function(reasone) {
+      }, function(reason) {
         if(done) {
           return;
         }
         done = true;
-        self._reject(e);
+        self._reject(reason);
       });
     } catch(e) {
       if(done) {
@@ -67,6 +68,7 @@ define(["../core"], function(boost) {
   };
   
   PromiseA.prototype._reject = function (newValue) {
+    logger.log("reject", newValue);
     this.state = false;
     this.value = newValue;
     this._finale();
@@ -83,8 +85,8 @@ define(["../core"], function(boost) {
   
   PromiseA.prototype._handle = function (deferred) {
     if(this.state === null) {
-      logger.log("queue");
-      this.deferred.push(deffered);
+      logger.log("queue", deferred);
+      this.deferred.push(deferred);
       return;
     }
     setTimeout(function() {
