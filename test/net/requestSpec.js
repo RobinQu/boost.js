@@ -7,18 +7,25 @@ define(["boost"], function(boost) {
   //   boost.instrument("net:xhr", false);
   // });
   
-  xdescribe("Request", function() {
+  describe("Request", function() {
     
     it("should do simple get", function(done) {
       
-      var server = sinon.fakeServer.create();
+      var server = sinon.fakeServer.create(),
+          callback = sinon.spy();
       
-      boost.ajax({url: "/api"}).then(function(resp) {
+      boost.ajax({url: "/api"}).then(callback);
+      server.requests[0].respond(200, {"Content-type": "application/json"}, '{"hello":"world"}');
+      
+      setTimeout(function() {
+        expect(callback).to.have.been.called;
+        var resp = callback.args[0][0];
+        // console.log(resp.text);
         expect(resp.status).to.equal(200);
-        expect(resp.text).to.equal('{"hello":"world"}');
+        expect(resp.text).to.be.ok;
+        // expect(resp.text).to.equal('{"hello":"world"}');
         done();
-      });
-      server.requests[0].respond([200, {"Content-type": "application/json"}, '{"hello":"world"}']);
+      }, 100);
     });
     
   });

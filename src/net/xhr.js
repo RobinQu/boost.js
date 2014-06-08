@@ -96,6 +96,7 @@ define(["../core", "../runtime"], function(boost) {
           while(!!(match = rheaders.exec(str))) {
             ret[match[1].toLowerCase()] = match[2];
           }
+          return ret;
         })(this.xhr);
       } catch(e) {
         logger.error(e.stack ? e.stack : e);
