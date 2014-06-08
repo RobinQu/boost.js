@@ -7,7 +7,7 @@ define(["boost"], function(boost) {
   //   boost.instrument("net:xhr", false);
   // });
   
-  describe("Request", function() {
+  xdescribe("Request", function() {
     
     it("should do simple get", function(done) {
       
