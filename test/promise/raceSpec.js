@@ -1,4 +1,5 @@
 define(["boost"], function(boost) {
+  
   boost.instrument("promise");
   
   beforeEach(function() {
@@ -33,10 +34,10 @@ define(["boost"], function(boost) {
       
     });
     
-    it("should reject to the first promise that is rejected", function() {
+    it("should reject to the first promise that is rejected", function(done) {
       
       
-      var p1 = new boost.Promise(function(resolve) {
+      var p1 = new boost.Promise(function(resolve, reject) {
         setTimeout(function() {
           reject(new Error(100));
         }, 100);
@@ -48,14 +49,18 @@ define(["boost"], function(boost) {
         }, 200);
       });
       
-      var p3 = new boost.Promise(function(resolve) {
+      var p3 = new boost.Promise(function(resolve, reject) {
         setTimeout(function() {
           reject(300);
         }, 300);
       });
       
-      Promise.race([p1, p2]).then(boost.noop, function(reason) {
-        expect(reason.message).to.equal(100);
+      var sCallback = sinon.spy();
+      
+      Promise.race([p1, p2]).then(sCallback, function(reason) {
+        expect(sCallback).not.to.have.been.called;
+        // console.log(sCallback.called);
+        expect(reason.message).to.equal("100");
         done();
       });
       
