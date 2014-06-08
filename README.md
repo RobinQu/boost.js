@@ -25,6 +25,7 @@ EXPERIMENTAL FRONT-END FRAMEWORKS, built with [Programing in JavaScript](https:/
   * websocket
   * WebRTC
 * promise
+  * ES6-compliant promise
 * mvc
   * tranditional mvc frameworks
 * xcomponent
