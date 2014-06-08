@@ -48,11 +48,13 @@ module.exports = function(grunt) {
           include: ["main"],
           insertRequire: ["main"],
           optimize: "none",
+          packages: ["core", "dom", "runtime", "promise"],
           // skipModuleInsertion: true,
           wrap: {
             startFile: "misc/start.js.frag",
             endFile: "misc/end.js.frag"
           },
+          
           // generateSourceMaps: true,
           findNestedDependencies: true,
           almond: true,
