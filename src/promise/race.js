@@ -3,7 +3,7 @@ define(["./core"], function(PromiseA) {
     if(!promises || !promises.length) {
       throw new TypeError("should provide an array of promises");
     }
-    return new Promise(function(resolve, reject) {
+    return new PromiseA(function(resolve, reject) {
       promises.forEach(function(p) {
         if(p && typeof p.then === "function") {
           p.then(resolve, reject);

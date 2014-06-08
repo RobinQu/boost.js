@@ -11,7 +11,7 @@ define(["boost"], function(boost) {
     
     it("should create a promise that resolves to a given value", function() {
       
-      var p1 = Promise.resolve(1);
+      var p1 = boost.Promise.resolve(1);
       p1.then(function(v) {
         expect(v).to.equal(1);
         done();

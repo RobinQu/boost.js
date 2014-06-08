@@ -4,7 +4,7 @@ define(["./core"], function(PromiseA) {
     if(!promises) {
       throw new TypeError("should provide an array of promises");
     }
-    return new Promise(function(resolve, reject) {
+    return new PromiseA(function(resolve, reject) {
       var results = [], _resolve, i = 0;
       if(!promises.length) {
         return resolve(results);

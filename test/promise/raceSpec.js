@@ -25,7 +25,7 @@ define(["boost"], function(boost) {
       });
       
       
-      Promise.race([p1, p2]).then(function(v) {
+      boost.Promise.race([p1, p2]).then(function(v) {
         expect(v).to.equal(100);
         done();
       });
@@ -55,7 +55,7 @@ define(["boost"], function(boost) {
       
       var sCallback = sinon.spy();
       
-      Promise.race([p1, p2]).then(sCallback, function(reason) {
+      boost.Promise.race([p1, p2]).then(sCallback, function(reason) {
         expect(sCallback).not.to.have.been.called;
         // console.log(sCallback.called);
         expect(reason.message).to.equal("100");
