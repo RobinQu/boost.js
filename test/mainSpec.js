@@ -2,6 +2,8 @@
 define(["boost"], function(boost) {
   "use strict";
   
+  boost.instrument("net:xhr");
+  
   describe("boost.js", function() {
     it("should exist in global", function() {
       expect(boost).to.be.ok;

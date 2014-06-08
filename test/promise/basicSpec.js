@@ -2,12 +2,12 @@
 
 define(["boost"], function(boost) {
   
-  beforeEach(function() {
-    boost.instrument("promise");
-  });
-  afterEach(function() {
-    boost.instrument("promise", false);
-  });
+  // beforeEach(function() {
+  //   boost.instrument("promise");
+  // });
+  // afterEach(function() {
+  //   boost.instrument("promise", false);
+  // });
   
   describe("Promise", function() {
     it("should resolve", function(done) {

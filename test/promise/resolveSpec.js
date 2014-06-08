@@ -1,13 +1,11 @@
 define(["boost"], function(boost) {
-  boost.instrument("promise");
-  
-  beforeEach(function() {
-    boost.instrument("promise");
-  });
-  afterEach(function() {
-    boost.instrument("promise", false);
-  });
-  
+
+  // beforeEach(function() {
+  //   boost.instrument("promise");
+  // });
+  // afterEach(function() {
+  //   boost.instrument("promise", false);
+  // });
   
   describe("Promise.resolve", function(done) {
     

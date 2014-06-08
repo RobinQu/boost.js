@@ -103,10 +103,12 @@ define(function() {
     topics = topics.split(",");
     for(i=0,len=topics.length; i<len; i++) {
       instrument = instruments[topics[i].trim()];
-      if(disable) {
-        instrument.disable();
-      } else {
-        instrument.enable();
+      if(instrument) {
+        if(disable) {
+          instrument.disable();
+        } else {
+          instrument.enable();
+        }
       }
     }
   };
