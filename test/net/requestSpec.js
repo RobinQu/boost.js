@@ -20,9 +20,9 @@ define(["boost"], function(boost) {
       setTimeout(function() {
         expect(callback).to.have.been.called;
         var resp = callback.args[0][0];
-        // console.log(resp.text);
         expect(resp.status).to.equal(200);
         expect(resp.text).to.be.ok;
+        expect(resp.body.hello).to.equal("world");
         // expect(resp.text).to.equal('{"hello":"world"}');
         done();
       }, 100);

@@ -99,11 +99,13 @@ define(["../core", "../runtime"], function(boost) {
           return ret;
         })(this.xhr);
       } catch(e) {
-        logger.error(e.stack ? e.stack : e);
+        logger.warn(e.stack ? e.stack : e);
       }
       try {//try to parse data
         response.body = boost.JSON.parse(response.text);
-      } catch(e) {}
+      } catch(e) {
+        logger.warn(e.stack ? e.stack : e);
+      }
       
       if(status >= 400 && status < 500) {
         this.deferred.reject(new Error("client error"), response);

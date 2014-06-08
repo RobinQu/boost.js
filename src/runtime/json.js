@@ -2,5 +2,6 @@
 // [Production-ready JSON implmentation](https://github.com/douglascrockford/JSON-js) is also created by Douglas Crockford
 
 define(["../core"], function(boost) {
-  return window.JSON;
+  boost.JSON = window.JSON;
+  return boost.JSON;
 });
