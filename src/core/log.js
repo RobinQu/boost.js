@@ -28,11 +28,11 @@ define(function() {
   Logger.prototype.write = function (level, data) {
     if(typeof data[0] === "string") {//do interpolation
       data[0] = "[%s] %s " + data[0];
-      data.splice(1, 0, level, this.topic);
+      data.splice(1, 0, level.toUpperCase(), this.topic);
       // console.log(data);
     } else {
-      data.unshift("[" + level + "]");
       data.unshift(this.topic);
+      data.unshift("[" + level.toUpperCase() + "]");
     }
     
     if(this.transport[level]) {

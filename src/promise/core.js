@@ -3,6 +3,8 @@ define(["../core"], function(boost) {
   
   var logger = boost.Logger.instrument("promise");
   
+  var id = 0;
+  
   var Deferred = function(onFulfilled, onRejected, resolve, reject) {
     this.onFulfilled = onFulfilled;
     this.onRejected = onRejected;
@@ -18,16 +20,16 @@ define(["../core"], function(boost) {
     this.state = null;
     this.value = null;
     this.deferred = [];
-    
+    this.guid = id++;
     this._doResolve(fn);
   };
   
   PromiseA.prototype._doResolve = function (fn) {
-    logger.log("do resolve");
+    logger.log("do resolve, guid", this.guid);
     var done = false,
         self = this;
     try {
-      fn(function(value) {
+      fn.call(this, function(value) {
         if(done) {
           return;
         }
@@ -41,6 +43,7 @@ define(["../core"], function(boost) {
         self._reject(reason);
       });
     } catch(e) {
+      logger.error(e.stack ? e.stack : e);
       if(done) {
         return;
       }
@@ -50,13 +53,13 @@ define(["../core"], function(boost) {
   };
   
   PromiseA.prototype._resolve = function (newValue) {
-    logger.log("_resolve", newValue);
+    logger.log("_resolve", newValue, "guid", this.guid);
     try {
       if(newValue === this) {
         throw new Error("Cannot be resolved by self");
       }
       if(newValue && newValue.then && typeof newValue.then === "function") {
-        newValue._doResolve(newValue.then.bind(newValue));
+        this._doResolve(newValue.then.bind(newValue));
         return;
       }
       this.state = true;
@@ -68,14 +71,14 @@ define(["../core"], function(boost) {
   };
   
   PromiseA.prototype._reject = function (newValue) {
-    logger.log("reject", newValue);
+    logger.log("reject", newValue, "guid", this.guid);
     this.state = false;
     this.value = newValue;
     this._finale();
   };
   
   PromiseA.prototype._finale = function () {
-    logger.log("_finale");
+    logger.log("_finale", this.deferred.length, "guid", this.guid);
     var i,len;
     for(i=0,len=this.deferred.length; i<len; i++) {
       this._handle(this.deferred[i]);
@@ -104,6 +107,7 @@ define(["../core"], function(boost) {
         ret = cb(this.value);
       } catch(e) {
         deferred.reject(e);
+        logger.error(e.stack ? e.stack : e);
         return;
       }
       deferred.resolve(ret);
