@@ -120,6 +120,25 @@ define(["../core"], function(boost) {
       self._handle(new Deferred(onFulfilled, onRejected, resolve, reject));
     });
   };
+  
+  PromiseA.prototype.catch = function (onRejected) {
+    return this.then(boost.noop, onRejected);
+  };
+  
+  PromiseA.resolve = function(value) {
+    if(value && value.constructor === PromiseA) {//it's already a promise
+      return value;
+    }
+    return new PromiseA(function(resolve) {
+      resolve(value);
+    });
+  };
+  
+  PromiseA.reject = function(reason) {
+    return new PromiseA(function(resolve, reject) {
+      reject(reason);
+    });
+  };
  
   return PromiseA;
   
