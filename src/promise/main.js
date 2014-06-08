@@ -1,4 +1,4 @@
-define(["../core", "./core", "./reject", "./resolve", "./race"], function(boost, PromiseA) {
+define(["../core", "./core", "./reject", "./resolve", "./race", "./all"], function(boost, PromiseA) {
   boost.Promise = PromiseA;
   
   

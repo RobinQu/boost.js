@@ -2,7 +2,12 @@
 
 define(["boost"], function(boost) {
   
-  boost.instrument("promise");
+  beforeEach(function() {
+    boost.instrument("promise");
+  });
+  afterEach(function() {
+    boost.instrument("promise", false);
+  });
   
   it("should resolve", function(done) {
     var a = new boost.Promise(function(resolve, reject) {

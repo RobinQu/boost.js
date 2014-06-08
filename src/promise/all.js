@@ -13,6 +13,9 @@ define(["./core"], function(PromiseA) {
       _resolve = function(value) {
         i++;
         results.push(value);
+        if(i === promises.length) {
+          resolve(results);
+        }
       };
       promises.forEach(function(p) {
         if(p && typeof p.then === "function") {
