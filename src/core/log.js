@@ -35,7 +35,7 @@ define(function() {
       data.unshift("[" + level.toUpperCase() + "]");
     }
     
-    if(this.transport[level]) {
+    if(this.transport && this.transport[level]) {
       this.transport[level].apply(this.transport, data);
     }
   };
@@ -82,7 +82,10 @@ define(function() {
   instance = Logger.create();
   ret.Logger = Logger;
   ["warn", "log", "info", "error", "debug"].forEach(function(k) {
-    ret[k] = instance[k].bind(instance);
+    // ret[k] = instance[k].bind(instance);
+    ret[k] = function() {
+      instance[k].apply(instance, arguments);
+    };
   });
   ret.getLogger = Logger.create;
   

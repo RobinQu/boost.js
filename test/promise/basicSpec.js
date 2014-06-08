@@ -4,7 +4,7 @@ define(["boost"], function(boost) {
   
   boost.instrument("promise");
   
-  xit("should resolve", function(done) {
+  it("should resolve", function(done) {
     var a = new boost.Promise(function(resolve, reject) {
       resolve(3);
     }).then(function(value) {
@@ -13,7 +13,7 @@ define(["boost"], function(boost) {
     });
   });
   
-  xit("should reject", function(done) {
+  it("should reject", function(done) {
     var ex = new Error("foo");
     new boost.Promise(function(resolve, reject) {
       reject(ex);
@@ -23,7 +23,7 @@ define(["boost"], function(boost) {
     });
   });
   
-  xit("should catch error during resolving", function(done) {
+  it("should catch error during resolving", function(done) {
     new boost.Promise(function(resolve, reject) {
       throw new Error("boom");
     }).then(boost.noop, function(e) {
