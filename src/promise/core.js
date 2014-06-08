@@ -121,9 +121,14 @@ define(["../core"], function(boost) {
     });
   };
   
-  PromiseA.prototype.catch = function (onRejected) {
+  PromiseA.prototype.fail = function (onRejected) {
     return this.then(boost.noop, onRejected);
   };
+  
+  try {//older browser won't allow `catch` as an identifier
+    PromiseA.prototype.catch = PromiseA.prototype.fail;
+  } catch(e) {}
+  
   
   return PromiseA;
   

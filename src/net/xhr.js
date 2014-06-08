@@ -23,7 +23,7 @@ define(["../core", "../runtime"], function(boost) {
     this.url = options.uri || options.url;
     this.withCredential = options.withCredential || false;
     this.timeout = options.timeout || 1000 * 8;
-    this.deferred = boost.deffered();
+    this.deferred = boost.deferred();
     this.response = {};
     this.timer = null;
   };
@@ -85,9 +85,9 @@ define(["../core", "../runtime"], function(boost) {
       } catch(e) {}
       
       if(status >= 400 && status < 500) {
-        this.deffered.reject(new Error("client error"), response);
+        this.deferred.reject(new Error("client error"), response);
       } else if(status >= 500) {
-        this.deffered.reject(new Error("server error"), response);
+        this.deferred.reject(new Error("server error"), response);
       }
       this.deferred.resolve(response);
       break;
@@ -110,7 +110,7 @@ define(["../core", "../runtime"], function(boost) {
       this.abort("time out");
     }.bind(this), this.timeout);
     
-    return this.deffered.promise;
+    return this.deferred.promise;
   };
   
   ["post", "put", "get", "delete", "option"].forEach(function(name) {
@@ -121,7 +121,7 @@ define(["../core", "../runtime"], function(boost) {
   
   Request.prototype.abort = function (reason) {
     this.xhr.abort();
-    this.deffered.reject(new Error(reason));
+    this.deferred.reject(new Error(reason));
   };
   
   boost.Request = Request;
