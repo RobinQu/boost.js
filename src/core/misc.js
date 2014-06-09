@@ -5,7 +5,7 @@ define(["./proto"], function() {
     classType: function(obj) {
       return Object.prototype.toString.call(obj).slice(8, -1);
     },
-    isArary: function(obj) {
+    isArray: function(obj) {
       return typeof obj === "object" && obj.constructor === Array;
     }
   };
