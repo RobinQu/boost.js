@@ -1,13 +1,6 @@
-define(function() {
+define(["./css", "./text"], function(css, text) {
   
-  var manip = {}, setText, getText, getCSS, setCSS;
-  
-  setText = function(el, str) {
-    
-  };
-  
-  getText = function(el) {};
-  
+  var manip = {};
   
   //get or set text
   manip.text = function(str) {
@@ -21,14 +14,14 @@ define(function() {
             el.removeChild(node);
           } while(el.firstChild);
         } else {
-          setText(el, str);
+          text(el, str);
         }
       });
     }
     
     var out = [];
     this.forEach(function(el) {
-      out.push(getText(el));
+      out.push(text(el));
     });
     return out.join("");
   };
@@ -47,10 +40,10 @@ define(function() {
   //get or set css style
   manip.css = function(prop, value) {
     if(!value && typeof prop === "string") {
-      return getCSS(this[0], prop);
+      return css(this[0], prop);
     }
     this.forEach(function(el) {
-      setCSS(el, prop, value);
+      css(el, prop, value);
     });
     return this;
   };

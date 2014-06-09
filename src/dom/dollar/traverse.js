@@ -54,12 +54,16 @@ define(["./match", "./access"], function(match, access) {
     }
     return this;
   };
-  
-  
-  //TODO map, reject, filter(select)
-  // traverse.map = function(fn) {
-  //   
-  // };
+
+  //TODO reject, filter(select)
+  traverse.map = function(fn) {
+    var result = [], i, len, el;
+    for(i=0,len=this.length; i<len; i++) {
+      el = this[i];
+      result.push(fn.call(el, el, i));
+    }
+    return result;
+  };
   
   traverse.at = traverse.eq = function(i) {
     return this.dom(this[i]);
@@ -72,7 +76,6 @@ define(["./match", "./access"], function(match, access) {
   traverse.last = function() {
     return this.at(this.length - 1);
   };
-  
   
   //delegate array-methods to `List`
   ["push", "pop", "shift", "splice", "unshift", "reverse", "sort", "toString", "concat", "join", "slice"].forEach(function(key) {
