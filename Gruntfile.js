@@ -28,7 +28,7 @@ module.exports = function(grunt) {
         browsers: ["PhantomJS"],
         singleRun: true,
         files: [
-          {pattern: "build/boost.min.js", included: true},
+          {pattern: "build/boost.js", included: true},
           {pattern: "test/test-build.js"},
           {pattern: "test/**/*.js", included: false}
         ]
@@ -48,7 +48,7 @@ module.exports = function(grunt) {
           include: ["main"],
           insertRequire: ["main"],
           optimize: "none",
-          packages: ["core", "dom", "runtime", "promise"],
+          packages: ["core", "dom", "runtime", "promise", "net"],
           // skipModuleInsertion: true,
           wrap: {
             startFile: "misc/start.js.frag",

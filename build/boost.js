@@ -454,6 +454,22 @@ define('core/proto',[],function() {
     };
   }
   
+  //Space triming
+  if(!String.prototype.trim) {
+    String.prototype.trim = function () {
+      return this.replace(/^\s+|\s+$/g, "");
+    };
+  }
+  
+  if(!Array.prototype.forEach) {
+    Array.prototype.forEach = function(fn, context) {
+      var i,len;
+      for(i=0,len=this.length; i<len; i++) {
+        fn.call(context || null, this[i], i, this);
+      }
+    };
+  }
+  
 });
 define('core/misc',["./proto"], function() {
   return {
@@ -461,6 +477,9 @@ define('core/misc',["./proto"], function() {
     noop: function() {},
     classType: function(obj) {
       return Object.prototype.toString.call(obj).slice(8, -1);
+    },
+    isArray: function(obj) {
+      return typeof obj === "object" && obj.constructor === Array;
     }
   };
 });
@@ -646,10 +665,12 @@ define('core/log',[],function() {
     topics = topics.split(",");
     for(i=0,len=topics.length; i<len; i++) {
       instrument = instruments[topics[i].trim()];
-      if(disable) {
-        instrument.disable();
-      } else {
-        instrument.enable();
+      if(instrument) {
+        if(disable) {
+          instrument.disable();
+        } else {
+          instrument.enable();
+        }
       }
     }
   };
@@ -1075,13 +1096,6 @@ define('dom/ready',["../core"], function(boost) {
   
   return bindDOMReady;
 });
-define('dom/selector',["../core"], function(boost) {
-  var $ = function (selector) {
-    return document.querySelectorAll(selector);
-  };
-  boost.$ = $;
-  return $;
-});
 define('dom/storage',["../core", "./ready"], function(boost, $ready) {
   
   if(window.localStorage) {
@@ -1151,7 +1165,511 @@ define('dom/storage',["../core", "./ready"], function(boost, $ready) {
   }
   return boost;
 });
-define('dom/main',["../core", "./event", "./data", "./ready", "./selector", "./storage"], function(boost) {
+define('dom/dollar/list',[],function() {
+  
+  var List = function(elems, selector) {
+    var i, len;
+    if(elems && elems.nodeType) {//a single node
+      if(elems.nodeType === 11) {//expand document fragment
+        elems = (function() {
+          var el = elems.firstChild,
+              ret = [];
+          do {
+            if(el.nodeType!==1) {
+              continue;
+            }
+            ret.push(el);
+            el = el.nextSibling;
+          } while(el);
+          return ret;
+        })();
+      } else {//wrap a single node
+        elems = [elems];
+      }
+    }
+    len = this.length =(elems || []).length;
+    for(i=0; i<len; i++) {
+      this[i] = elems[i];
+    }
+    this.selector = selector;
+  };
+  
+  List.prototype.toArray = function () {
+    return Array.prototype.slice.call(this);
+  };
+  
+  List.prototype.size = function () {
+    return this.length;
+  };
+  
+  return List;
+});
+define('dom/dollar/query',["../../core"], function(boost) {
+  boost.query = {
+    one: function(selector, el) {
+      el = el || document;
+      return el.querySelector(selector);
+    },
+    all: function(selector, el) {
+      el = el || document;
+      return el.querySelectorAll(selector);
+    }
+  };
+  return boost.query;
+});
+/* Parse html to DOM elements */
+/* Large part of this code is copied from https://github.com/component/domify/blob/master/index.js */
+
+define('dom/dollar/parse',[],function() {
+
+  var map = {
+    legend: [1, '<fieldset>', '</fieldset>'],
+    tr: [2, '<table><tbody>', '</tbody></table>'],
+    col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],
+    _default: [0, '', '']
+  };
+
+  map.td =
+  map.th = [3, '<table><tbody><tr>', '</tr></tbody></table>'];
+
+  map.option =
+  map.optgroup = [1, '<select multiple="multiple">', '</select>'];
+
+  map.thead =
+  map.tbody =
+  map.colgroup =
+  map.caption =
+  map.tfoot = [1, '<table>', '</table>'];
+
+  map.text =
+  map.circle =
+  map.ellipse =
+  map.line =
+  map.path =
+  map.polygon =
+  map.polyline =
+  map.rect = [1, '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">','</svg>'];
+  
+  return function parse(html) {
+    if ('string' != typeof html) throw new TypeError('String expected');
+  
+    // tag name
+    var m = /<([\w:]+)/.exec(html);
+    if (!m) return document.createTextNode(html);
+
+    html = html.replace(/^\s+|\s+$/g, ''); // Remove leading/trailing whitespace
+
+    var tag = m[1];
+    var el;
+    // body support
+    if (tag == 'body') {
+      el = document.createElement('html');
+      el.innerHTML = html;
+      return el.removeChild(el.lastChild);
+    }
+
+    // wrap map
+    var wrap = map[tag] || map._default;
+    var depth = wrap[0];
+    var prefix = wrap[1];
+    var suffix = wrap[2];
+    el = document.createElement('div');
+    el.innerHTML = prefix + html + suffix;
+    while (depth--) el = el.lastChild;
+
+    // one element
+    if (el.firstChild == el.lastChild) {
+      return el.removeChild(el.firstChild);
+    }
+
+    // several elements
+    var fragment = document.createDocumentFragment();
+    while (el.firstChild) {
+      fragment.appendChild(el.removeChild(el.firstChild));
+    }
+
+    return fragment;
+  };
+  
+});
+/* Test if an element matches a selector */
+
+define('dom/dollar/match',["./query"], function(query) {
+  
+  
+  var matchMethodName = (function() {
+    var names = ["matches", "webkitMacthesSelector", "mozMatchesSelector", "msMatchesSelector", "oMatchesSelector"];
+    var i = names.length;
+    while(i--) {
+      if(Element.prototype[names[i]]) {
+        break;
+      }
+    }
+    return names[i];
+  })();
+  
+  return function match(el, selector) {
+    if(matchMethodName) {
+      return el[matchMethodName](selector);
+    }
+    //find nodes under `el`'s parent
+    var nodes = query.all(selector, el.parentNode),
+        i, len;
+    for(i=0,len=nodes.length; i<len; i++) {
+      if(nodes[i] == el) {
+        return true;
+      }
+    }
+    return false;
+  };
+  
+});
+define('dom/dollar/access',["./match"], function(match) {
+  
+  return function access(name, el, selector, limit) {
+    var ret = [];
+    
+    el = el[type];
+    limit = limit || 1;
+    if(!el) {
+      return ret;
+    }
+    do {
+      if(limit === ret.length) {//reach the limit
+        break;
+      }
+      if(el.nodeType !== 1) {//only accept element nodes
+        continue;
+      }
+      if(match(el, selector)) {
+        ret.push(el);
+      }
+      if(!selector) {
+        ret.push(el);
+      }
+    } while(el = el[type]);
+    
+    return ret;
+  };
+  
+});
+define('dom/dollar/traverse',["./match", "./access"], function(match, access) {
+  
+  var traverse = {};
+  
+  // Find all matching descendant
+  traverse.find = function(selector) {
+    return this.dom(selector, this);
+  };
+  
+  //Check if any elements matches the `selector`
+  
+  traverse.is = function(selector) {
+    var i, el;
+    
+    for(i=0; el=this[i]; i++) {
+      if(match(el, selector)) {
+        return true;
+      }
+    }
+    return false;
+  };
+  
+  // Get parants of any level
+  traverse.parent = function(selector, limit) {
+    return this.dom(access("parentNode", this[0], selector, limit));
+  };
+  
+  // next siblings
+  traverse.next = function(selector, limit) {
+    return this.dom(traverse("nextSibling", this[0], selector, limit));
+  };
+  
+  // previous siblings
+  traverse.prev = traverse.previous = function(selector, limit) {
+    return this.dom(traverse("previousSibling"), this[0], selector, limit);
+  };
+  
+  // iterate over each elements and invoke `fn(i, list)`
+  traverse.each = function(fn) {
+    var list, i, len;
+    for(i=0,len = this.length; i<len; i++) {
+      list = this.dom(this[i]);
+      fn.call(list, i, list);
+    }
+    return this;
+  };
+  
+  // traverse like `each`, but no wrapping using `List`, just invoke `fn(i, el)`
+  traverse.forEach = function(fn) {
+    var i, len, el;
+    for(i=0,len=this.length; i<len; i++) {
+      el = this[i];
+      fn.call(el, el, i);
+    }
+    return this;
+  };
+
+  //TODO reject, filter(select)
+  traverse.map = function(fn) {
+    var result = [], i, len, el;
+    for(i=0,len=this.length; i<len; i++) {
+      el = this[i];
+      result.push(fn.call(el, el, i));
+    }
+    return result;
+  };
+  
+  traverse.at = traverse.eq = function(i) {
+    return this.dom(this[i]);
+  };
+  
+  traverse.first = function() {
+    return this.at(0);
+  };
+  
+  traverse.last = function() {
+    return this.at(this.length - 1);
+  };
+  
+  //delegate array-methods to `List`
+  ["push", "pop", "shift", "splice", "unshift", "reverse", "sort", "toString", "concat", "join", "slice"].forEach(function(key) {
+    traverse[key] = function() {
+      return Array.prototype[method].apply(this.toArray(), arguments);
+    };
+  });
+  
+  return traverse;
+});
+define('dom/dollar/css',[],function() {
+  //TODO CSS setter and getter
+  return function() {
+    
+  };
+  
+});
+define('dom/dollar/text',[],function() {
+  //TODO text setter and getter
+  return function() {
+    
+  };
+  
+});
+define('dom/dollar/manipulate',["./css", "./text"], function(css, text) {
+  
+  var manip = {};
+  
+  //get or set text
+  manip.text = function(str) {
+    //set
+    if(str) {
+      return this.forEach(function(el) {
+        var node;
+        if(el.nodeType === 11) {//DocumentFragment
+          do {
+            node = el.firstChild;
+            el.removeChild(node);
+          } while(el.firstChild);
+        } else {
+          text(el, str);
+        }
+      });
+    }
+    
+    var out = [];
+    this.forEach(function(el) {
+      out.push(text(el));
+    });
+    return out.join("");
+  };
+  
+  //get or set html string
+  manip.html = function(html) {
+    if(html) {
+      return this.forEach(function(el) {
+        el.innerHTML = html;
+      });
+    }
+    
+    return this[0] && this[0].innerHTML;
+  };
+  
+  //get or set css style
+  manip.css = function(prop, value) {
+    if(!value && typeof prop === "string") {
+      return css(this[0], prop);
+    }
+    this.forEach(function(el) {
+      css(el, prop, value);
+    });
+    return this;
+  };
+  
+  manip.prepend = function(value) {
+    var dom = this.dom;
+    this.forEach(function(el, i) {
+      dom(value).forEach(function(target) {
+        // deep clone the target if we intend to prepend `target` to multiple destination
+        target = i ? target.cloneNode(true) : target;
+        if(el.children.length) {//insert before the first child
+          el.insertBefore(target, el.firstChild);
+        } else {//insert at the end; will enter this block once for every target
+          el.appendChild(target);
+        }
+      });
+    });
+    return this;
+  };
+  
+  //append elements to the matched elements in the list
+  manip.append = function(value) {
+    var dom = this.dom;
+    this.forEach(function(el, i) {
+      dom(value).forEach(function(target) {
+        // deep clone if we intend to append to multiple destinations
+        target = i ? target.cloneNode(true) : target;
+        el.appendChild(target);
+      });
+    });
+    return this;
+  };
+  
+  //insert elements before the matched elements in the list
+  manip.insertAfter = function(value) {
+    var dom = this.dom;
+    
+    this.forEach(function(el) {
+      dom(value).forEach(function(target, i) {
+        if(!target.parentNode) {//if it's not in a subtree, we cannot insert after it
+        return;
+        }
+        el = i ? el.cloneNode(true) : el;
+        //insert before the target's next sibling
+        target.parentNode.insertBefore(el, target.nextSibling);
+      });
+    });
+    
+    return this;
+  };
+  
+  //append matched elements to the target
+  manip.appendTo = function(value) {
+    this.dom(value).append(this);
+    return this;
+  };
+  
+  //replace elements
+  manip.replace = function(value) {
+    var self = this;
+    this.dom(value).forEach(function(el, i) {
+      var old = self[i], 
+          parent = old.parentNode;
+      if(!parent) {
+        return;
+      }
+      el = i ? el.cloneNode(true) : el;
+      parent.replaceChild(el, old);
+    });
+    return this;
+  };
+  
+  //empty dom elements in the list
+  manip.empty = function() {
+    return this.forEach(function(el) {
+      setText(el, "");
+    });
+  };
+  
+  //remove matched elements from their parents
+  manip.remove = function() {
+    return this.forEach(function(el) {
+      var parent = el.parentNode;
+      if(parent) {
+        parent.removeChild(el);
+      }
+    });
+  };
+  
+  manip.clone = function() {
+    return this.dom(this.map(function(el) {
+      return el.cloneNode(true);
+    }));
+  };
+  
+  return manip;
+});
+define('dom/dollar/dom',["../../core/misc", "./list", "./query", "./parse", "./traverse", "./manipulate"], function(utils, List, query, parse, traverse, manipulate) {
+  
+  var quickExpr = /^(?:[^#<]*(<[\w\W]+>)[^>]*$|#([\w\-]*)$)/;
+  
+  var isHTML = function(str) {
+    if (str.charAt(0) === '<' && str.charAt(str.length - 1) === '>' && str.length >= 3) return true;
+
+    // Run the regex
+    var match = quickExpr.exec(str);
+    return !!(match && match[1]);
+  };
+  
+  var dom = function(selector, context) {
+    
+    //array
+    if(utils.isArray(selector)) {
+      return new List(selector);
+    }
+    
+    //List
+    if(selector instanceof List) {
+      return selector;
+    }
+    
+    //node
+    if(selector.nodeName) {
+      return new List([selector]);
+    }
+    
+    if(typeof selector !== "string") {
+      throw new Error("invalid");
+    }
+    
+    var html = selector.trim();
+    if(isHTML(html)) {
+      return new List(parse(html));
+    }
+    
+    // selector
+    var ctx = context ? (context instanceof List ? context[0] : context): document;
+    
+    return new List(query.all(selector, ctx), selector);
+  };
+  
+  dom.ext = function (name, fn) {
+    if(name && fn && typeof fn === "function") {
+      List.prototype[name] = fn;
+      return;
+    }
+    var k;
+    for(k in name) {//treat `name` as an object hash
+      if(name.hasOwnProperty(k)) {
+        List.prototype[k] = name[k];
+      }
+    }
+  };
+  
+  dom.ext("dom", dom);
+  dom.ext(traverse);
+  dom.ext(manipulate);
+  
+  return dom;
+  
+});
+define('dom/dollar/main',["../../core", "./dom"], function(boost, dom) {
+
+  //export to boost
+  boost.$ = dom;
+  return dom;
+  
+});
+define('dom/main',["../core", "./event", "./data", "./ready", "./storage", "./dollar/main"], function(boost) {
   return boost;
 });
 define('dom', ['dom/main'], function (main) { return main; });
@@ -1169,7 +1687,8 @@ define('runtime/base64',["../core"], function(boost) {
 // [Production-ready JSON implmentation](https://github.com/douglascrockford/JSON-js) is also created by Douglas Crockford
 
 define('runtime/json',["../core"], function(boost) {
-  return window.JSON;
+  boost.JSON = window.JSON;
+  return boost.JSON;
 });
 define('runtime/main',["../core", "./base64", "./json"], function(boost) {
   return boost;
@@ -1337,7 +1856,7 @@ define('promise/race',["./core"], function(PromiseA) {
     if(!promises || !promises.length) {
       throw new TypeError("should provide an array of promises");
     }
-    return new Promise(function(resolve, reject) {
+    return new PromiseA(function(resolve, reject) {
       promises.forEach(function(p) {
         if(p && typeof p.then === "function") {
           p.then(resolve, reject);
@@ -1348,7 +1867,37 @@ define('promise/race',["./core"], function(PromiseA) {
     });
   };
 });
-define('promise/main',["../core", "./core", "./reject", "./resolve", "./race"], function(boost, PromiseA) {
+define('promise/all',["./core"], function(PromiseA) {
+  
+  PromiseA.all = function(promises) {
+    if(!promises) {
+      throw new TypeError("should provide an array of promises");
+    }
+    return new PromiseA(function(resolve, reject) {
+      var results = [], _resolve, i = 0;
+      if(!promises.length) {
+        return resolve(results);
+      }
+      
+      _resolve = function(value) {
+        i++;
+        results.push(value);
+        if(i === promises.length) {
+          resolve(results);
+        }
+      };
+      promises.forEach(function(p) {
+        if(p && typeof p.then === "function") {
+          p.then(_resolve, reject);
+        } else {//resolve as an simple value
+          _resolve(p);
+        }
+      });
+    });
+  };
+  
+});
+define('promise/main',["../core", "./core", "./reject", "./resolve", "./race", "./all"], function(boost, PromiseA) {
   boost.Promise = PromiseA;
   
   
@@ -1368,15 +1917,195 @@ define('promise/main',["../core", "./core", "./reject", "./resolve", "./race"], 
 });
 define('promise', ['promise/main'], function (main) { return main; });
 
+define('net/xhr',["../core", "../runtime"], function(boost) {
+  
+  var logger = boost.Logger.instrument("net:xhr");
+  
+  // XHR Factory
+  // replace this function to support customized XHR
+  boost.xhr = function() {
+    logger.log("create xhr");
+    if (window.ActiveXObject) {
+      return new window.ActiveXObject("Microsoft.XMLHTTP");
+    } else if(window.XMLHttpRequest) {
+      return new XMLHttpRequest();
+    }
+    return false;
+  };
+  
+  var Request = function(options) {
+    if(!(this instanceof Request)) {
+      return new Request(options);
+    }
+    
+    logger.log("construct");
+    this.xhr = boost.xhr();
+    this.method = options.method || "GET";
+    if(options.headers) {
+      this.set(options.headers);
+    }
+    this.url = options.uri || options.url;
+    this.withCredential = options.withCredential || false;
+    this.timeout = options.timeout || 1000 * 8;
+    this.deferred = boost.deferred();
+    this.response = {};
+    this.timer = null;
+
+    this.xhr.onreadystatechange = this._handlestatechange.bind(this);
+  };
+  
+  Request.prototype.set = function (key, value) {
+    if(typeof key === "object") {
+      var k,v;
+      for(k in key) {
+        if(key.hasOwnProperty(k)) {
+          v = key[k];
+          this.set(k, v);
+        }
+      }
+      return this;
+    }
+    this.xhr.setRequestHeader(key, value);
+    return this;
+  };
+  
+  Request.prototype.basic = function (user, password) {
+    this.set("Authorization", "Basic " + boost.base64.encode(user + ":" + password));
+    return this;
+  };
+  
+  Request.prototype._handleData = function (data) {
+    logger.log("handle data");
+    //stringify plain objects to JSON string
+    if(typeof data === "object" && boost.classType(data) === "Object") {//plain object
+      data = boost.JSON.stringify(data);
+    }
+    return data;
+  };
+  
+  Request.prototype._handlestatechange = function () {
+    var status, response = {},
+        //Copied from jQuery.ajax
+        rheaders = /^(.*?):[ \t]*([^\r\n]*)\r?$/mg;
+        
+    logger.log("onreadystatechange", this.url, this.xhr.readyState);
+    switch(this.xhr.readyState) {
+    case 1:
+      //connection is opened
+      break;
+    case 2:
+      //headers received
+      break;
+    case 3:
+      //loading in progress; `this.xhr.responseText` has partial data
+      break;
+    case 4:
+      if(this.timer) {//clear if necessary
+        clearTimeout(this.timer);
+      }
+      this.xhr.onreadystatechange = boost.noop;
+      try {//try to build necessary data
+        response.status = status = this.xhr.status;
+        response.text = this.xhr.responseText;
+        response.headers = (function(xhr) {
+          var str = xhr.getAllResponseHeaders() || "",
+              match,
+              ret = {};
+          
+          while(!!(match = rheaders.exec(str))) {
+            ret[match[1].toLowerCase()] = match[2];
+          }
+          return ret;
+        })(this.xhr);
+      } catch(e) {
+        logger.warn(e.stack ? e.stack : e);
+      }
+      try {//try to parse data
+        response.body = boost.JSON.parse(response.text);
+      } catch(e) {
+        logger.warn(e.stack ? e.stack : e);
+      }
+      
+      if(status >= 400 && status < 500) {
+        this.deferred.reject(new Error("client error"), response);
+      } else if(status >= 500) {
+        this.deferred.reject(new Error("server error"), response);
+      } else {
+        this.deferred.resolve(response);
+      }
+      break;
+    }
+  };
+  
+  Request.prototype.write = function (data) {
+    if(data && ["GET", "OPTION"].indexOf(method.toUpperCase()) === 0) {//we can send data
+      logger.log("before send");
+      this.xhr.send(this._handleData());
+      logger.log("after send");
+    }
+    return this;
+  };
+  
+  Request.prototype.end = function (callback) {
+    logger.log("before open", this.method, this.url);
+    //default to be async, with no username and password
+    this.xhr.open(this.method, this.url);
+    logger.log("after open");
+    
+    
+    if("timeout" in this.xhr) {//support timeout
+      this.xhr.timeout = this.timeout;
+    } else {
+      this.timer = setTimeout(function() {
+        logger.log("timeout");
+        this.abort("time out");
+      }.bind(this), this.timeout);
+    }
+    
+    if(callback) {
+      return this.deferred.promise.then(function(resp) {
+        callback(null, resp);
+      }, callback);
+    }
+    
+    return this.deferred.promise;
+  };
+  
+  ["post", "put", "get", "delete", "option"].forEach(function(name) {
+    Request[name] = function(options) {
+      options.method = name;
+      return new Request(options);
+    };
+  });
+  
+  Request.prototype.abort = function (reason) {
+    logger.log("abort");
+    this.xhr.abort();
+    this.deferred.reject(new Error(reason));
+  };
+  
+  boost.Request = Request;
+  boost.ajax = function(options) {
+    var r = new Request(options);
+    return r.end();
+  };
+  return Request;
+});
+define('net/main',["./xhr"], function(xhr) {
+  return {xhr: xhr};
+});
+define('net', ['net/main'], function (main) { return main; });
+
 require.config({
-  packages: ["core", "dom", "runtime", "promise"]
+  packages: ["core", "dom", "runtime", "promise", "net"]
 });
 
 define('main',[
   "core",
   "dom",
   "runtime",
-  "promise"
+  "promise",
+  "net"
 ], function(boost) {
   if(!window.boost) {
     window.boost = boost;

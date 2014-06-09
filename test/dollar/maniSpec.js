@@ -43,7 +43,6 @@ define(["boost"], function(boost) {
    });
    
    it("should work with existing elements", function() {
-     
      var p = boost.$("<div><span>0</span><p>1</p></div>");
      boost.$("span", p).insertAfter(boost.$("p", p));
      expect(boost.$("div :first-child", p)[0].innerHTML).to.equal("1");
