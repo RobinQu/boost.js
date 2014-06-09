@@ -1,3 +1,3 @@
-define(["../core", "./event", "./data", "./ready", "./selector", "./storage"], function(boost) {
+define(["../core", "./event", "./data", "./ready", "./storage", "./dollar/main"], function(boost) {
   return boost;
 });
