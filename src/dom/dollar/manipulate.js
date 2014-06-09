@@ -57,7 +57,7 @@ define(["./css", "./text"], function(css, text) {
         if(el.children.length) {//insert before the first child
           el.insertBefore(target, el.firstChild);
         } else {//insert at the end; will enter this block once for every target
-          el.appendchild(target);
+          el.appendChild(target);
         }
       });
     });
@@ -70,7 +70,7 @@ define(["./css", "./text"], function(css, text) {
     this.forEach(function(el, i) {
       dom(value).forEach(function(target) {
         // deep clone if we intend to append to multiple destinations
-        target = i ? target.cloneNode(true) : el;
+        target = i ? target.cloneNode(true) : target;
         el.appendChild(target);
       });
     });

@@ -31,5 +31,9 @@ define(function() {
     return Array.prototype.slice.call(this);
   };
   
+  List.prototype.size = function () {
+    return this.length;
+  };
+  
   return List;
 });
