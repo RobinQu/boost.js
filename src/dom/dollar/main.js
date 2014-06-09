@@ -1,7 +1,5 @@
-define(["../../core", "./dom", "./list", "./query"], function(boost, dom, List, query) {
-  
-  dom.List = List;
-  dom.query = query;
+define(["../../core", "./dom"], function(boost, dom) {
+
   //export to boost
   boost.$ = dom;
   return dom;

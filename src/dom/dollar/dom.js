@@ -33,7 +33,7 @@ define(["../../core/misc", "./list", "./query", "./parse", "./traverse", "./mani
     
     var html = selector.trim();
     if(isHTML(html)) {
-      return new List([parse(html)]);
+      return new List(parse(html));
     }
     
     // selector
@@ -56,7 +56,6 @@ define(["../../core/misc", "./list", "./query", "./parse", "./traverse", "./mani
   };
   
   dom.ext("dom", dom);
-  
   dom.ext(traverse);
   dom.ext(manipulate);
   
