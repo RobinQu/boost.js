@@ -13,18 +13,5 @@ define(function() {
     return Array.prototype.slice.call(this);
   };
   
-  List.prototype.ext = function (name, fn) {
-    if(name && fn && typeof fn === "function") {
-      List.prototype[name] = fn;
-      return;
-    }
-    var k;
-    for(k in name) {//treat `name` as an object hash
-      if(name.hasOwnProperty(k)) {
-        List.prototype[k] = name[k];
-      }
-    }
-  };
-  
   return List;
 });

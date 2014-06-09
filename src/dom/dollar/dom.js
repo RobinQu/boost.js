@@ -1,4 +1,4 @@
-define(["../../core/misc", "./list", "./query", "./parse"], function(utils, List, query, parse) {
+define(["../../core/misc", "./list", "./query", "./parse", "./traverse"], function(utils, List, query, parse, traverse) {
   
   var quickExpr = /^(?:[^#<]*(<[\w\W]+>)[^>]*$|#([\w\-]*)$)/;
   
@@ -41,6 +41,23 @@ define(["../../core/misc", "./list", "./query", "./parse"], function(utils, List
     
     return new List(query.all(selector, ctx), selector);
   };
+  
+  dom.ext = function (name, fn) {
+    if(name && fn && typeof fn === "function") {
+      List.prototype[name] = fn;
+      return;
+    }
+    var k;
+    for(k in name) {//treat `name` as an object hash
+      if(name.hasOwnProperty(k)) {
+        List.prototype[k] = name[k];
+      }
+    }
+  };
+  
+  dom.ext("dom", dom);
+  
+  dom.ext(traverse);
   
   return dom;
   

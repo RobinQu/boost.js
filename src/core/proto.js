@@ -25,4 +25,13 @@ define(function() {
     };
   }
   
+  if(!Array.prototype.forEach) {
+    Array.prototype.forEach = function(fn, context) {
+      var i,len;
+      for(i=0,len=this.length; i<len; i++) {
+        fn.call(context || null, this[i], i, this);
+      }
+    };
+  }
+  
 });
