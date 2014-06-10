@@ -1,4 +1,4 @@
-define(["../../core/misc", "./list", "../query", "../parse", "./traverse", "./manipulate"], function(utils, List, query, parse, traverse, manipulate) {
+define(["../../core/misc", "./list", "../query", "../parse", "./traverse", "./manipulate", "./classes", "./attr"], function(utils, List, query, parse, traverse, manipulate, classes, attr) {
   
   var quickExpr = /^(?:[^#<]*(<[\w\W]+>)[^>]*$|#([\w\-]*)$)/;
   
@@ -58,6 +58,8 @@ define(["../../core/misc", "./list", "../query", "../parse", "./traverse", "./ma
   dom.ext("dom", dom);
   dom.ext(traverse);
   dom.ext(manipulate);
+  dom.ext(classes);
+  dom.ext(attr);
   
   return dom;
   

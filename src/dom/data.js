@@ -1,9 +1,9 @@
-define(["../core"], function(boost) {
+define(function() {
   var setValue, getValue, 
       cache = {}, cacheKey = "__boost_cache_key__",
       uuid = 0;
   
-  boost.data = function(elem, key, value) {
+  return function(elem, key, value) {
     var entryKey, data;
     if(elem.dataset) {//support data api
       entryKey = elem.dataset[cacheKey];
@@ -25,5 +25,4 @@ define(["../core"], function(boost) {
     return data[key];
   };
   
-  return boost.data;
 });

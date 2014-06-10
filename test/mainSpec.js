@@ -10,7 +10,6 @@ define(["boost"], function(boost) {
       expect(boost.Event).to.be.ok;
       expect(boost.ready).to.be.ok;
       expect(boost.$).to.be.ok;
-      expect(boost.data).to.be.ok;
     });
     
   });
