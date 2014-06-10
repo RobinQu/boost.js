@@ -54,7 +54,18 @@ define(["./match", "./access"], function(match, access) {
     }
     return this;
   };
-
+  
+  traverse.some = traverse.any = function(fn) {
+    var i, len, el;
+    for(i=0,len=this.length; i<len; i++) {
+      el = this[i];
+      if(fn.call(el, el, i)) {
+        return true;
+      }
+    }
+    return false;
+  };
+  
   //TODO reject, filter(select)
   traverse.map = function(fn) {
     var result = [], i, len, el;
