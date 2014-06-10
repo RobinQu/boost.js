@@ -17,9 +17,12 @@ EXPERIMENTAL FRONT-END FRAMEWORKS, built with [Programing in JavaScript](https:/
   * utilities
 * dom
   * browser events
-  * DOM manipluater
-  * DOM selector
-  * DOM data storage
+  * node manipluater
+  * selector
+  * data storage
+  * dimension
+  * classname helpers
+  * attr helpers
 * net
   * AJAX
   * websocket
