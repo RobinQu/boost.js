@@ -1,4 +1,4 @@
-define(["./match", "./access"], function(match, access) {
+define(["../match", "../access"], function(match, access) {
   
   var traverse = {};
   

@@ -1,4 +1,4 @@
-define(["../../core"], function(boost) {
+define(["core"], function(boost) {
   boost.query = {
     one: function(selector, el) {
       el = el || document;

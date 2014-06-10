@@ -1,4 +1,4 @@
-define(["./css", "./text"], function(css, text) {
+define(["../css", "../text"], function(css, text) {
   
   var manip = {};
   
