@@ -1,5 +1,7 @@
 define(["../class_list"], function(ClassList) {
   
+  var classes = {};
+  
   var getClassList = function(el) {
     if(el.classList) {//native classList or mocked one
       return el.classList;

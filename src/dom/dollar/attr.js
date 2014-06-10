@@ -1,4 +1,4 @@
-define(["./value"], function(value) {
+define(["../value"], function(value) {
   var attrs = {};
   
   // set or get attr
