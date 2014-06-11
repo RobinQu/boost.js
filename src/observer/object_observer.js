@@ -29,30 +29,17 @@ define(["runtime", "./observable"], function(boost, observable) {
       }
       logger.log("connect");
       
-      //store filter right on the function
-      fn.filter = filter || this.filter;
-      // var target = observants.get(this);
-      
       if(!this.isObserving) {
         logger.log("observe", this.subject);
         this._handler = this.notifyChanges.bind(this);
         Object.observe(this.subject, this._handler);
       }
-      if(this.listeners.indexOf(fn) === -1) {
-        this.listeners.push(fn);
-      }
-      logger.log("add listener", this.listeners.length);
+      this._addObserver(fn, filter);
       return this;
     },
     
     disconnect: function(fn) {
-      if(fn) {
-        logger.log("remove listener");
-        this.listeners.splice(this.listeners.indexOf(fn), 1);
-      } else {//clean all
-        logger.log("clear listener");
-        this.listeners.length = 0;
-      }
+      this._removeObserver(fn);
       if(!this.listeners.length) {//unboserve if we don't have any listeners
         // var obj = observants.get(this);
         logger.log("unobserve", this.subject);

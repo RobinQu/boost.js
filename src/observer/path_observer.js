@@ -7,6 +7,7 @@ define(["runtime", "./observable", "./object_observer"], function(boost, Observa
   var PathObserver = boost.Object.extend({
     
     init: function(obj, path) {
+      logger.log("construct");
       this.segments = {};
       this.subject = obj;
       this.path = path;
@@ -16,20 +17,27 @@ define(["runtime", "./observable", "./object_observer"], function(boost, Observa
       var self = this,
           obj, path;
       
+      
       obj = pre ? boost.access(this.subject, pre) : this.subject;
       path = pre ? this.path.slice(pre.length + 1) : this.path;
-      
+      logger.log(teardown ? "teardown" : "setup", obj, path);
+
       boost.access(obj, path, function(current, key, prefix, end) {
         var ob, handler;
-        logger.logger("setup", prefix, key);
+        logger.log("access", prefix, key);
         if(current === null || current === undefined) {
           //do nothing
-          logger.logger("unreachabe");
-        } else {
+          logger.log("unreachabe");
+        } else if(typeof current === "object") {
           if(teardown) {
+            logger.log("remove", current, prefix);
+            handler = self.segments[prefix];
+            Object.unobserve(current, handler);
             delete self.segments[prefix];
           } else {
-            self.segments[prefix] = self._createSegmentHandler(current, prefix);
+            logger.log("add", current, prefix);
+            handler = self.segments[prefix] = self._createSegmentHandler(current, prefix);
+            Object.observe(current, handler);
           }
         }
         
@@ -37,8 +45,9 @@ define(["runtime", "./observable", "./object_observer"], function(boost, Observa
     },
     
     _createSegmentHandler: function(subject, prefix) {
-      var self;
+      var self = this;
       return function(changes) {
+        logger.log("notify");
         changes.forEach(function(change) {
           var obj = change.object,
               type = change.type,
@@ -49,29 +58,31 @@ define(["runtime", "./observable", "./object_observer"], function(boost, Observa
           } else if(type === Observable.Types.DELETE && typeof change.oldValue === "object") {
             self._setup(value, [prefix, name].join("."), true);
           }
-          change.path = prefix ? [prefix, name].join(".") : name;
+          
+          // `change` is sealed
+          // change.path = (prefix ? [prefix, name].join(".") : name);
         });
-        
+
         self.notifyChanges(changes);
       };
     },
     
     connect: function(fn) {
-      if(fn && this.listeners.indexOf(fn) === -1) {
-        this.listeners.push(fn);
-        if(!this.isObserving) {
-          this._setup();
-          this.isObserving = true;
-        }
+      if(!fn) {
+        return this;
       }
+      this._addObserver(fn);
+      
+      if(!this.isObserving) {
+        this._setup();
+        this.isObserving = true;
+      }
+      
+      return this;
     },
     
     disconnect: function(fn) {
-      if(fn) {
-        this.listeners.splice(this.listeners.indexOf(fn), 1);
-      } else {
-        this.listeners.length = 0;
-      }
+      this._removeObserver(fn);
       if(!this.listeners.length) {
         this._setup(null, true);
         this.isObserving = false;
@@ -97,6 +108,7 @@ define(["runtime", "./observable", "./object_observer"], function(boost, Observa
     return obs[path];
   };
   
+  boost.PathObserver = PathObserver;
   
   return PathObserver;
   
