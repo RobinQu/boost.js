@@ -3,11 +3,13 @@ define(["core"], function(boost) {
   var fnTest = /xyz/.test(function(){var xyz;}) ? /\b_super\b/ : /.*/,
       init, XObject;
   
+  
+  // object initializer
   init = function() {
-    if(this.init) {
+    if(this.init) {//`init` on the prototype
       this.init.apply(this, arguments);
     }
-    if(this.__mixins__ && this.__mixins__.length) {
+    if(this.__mixins__ && this.__mixins__.length) {//mixin support
       this.__mixins__.forEach(function(mixin) {
         if(mixin.initMixin) {
           mixin.initMixin.apply(this);
