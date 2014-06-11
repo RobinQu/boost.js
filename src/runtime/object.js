@@ -1,11 +1,14 @@
 define(["core"], function(boost) {
   
+  var logger = boost.Logger.instrument("object");
+  
   var fnTest = /xyz/.test(function(){var xyz;}) ? /\b_super\b/ : /.*/,
-      init, XObject;
+      XObject, init, mixin, extend;
   
   
   // object initializer
   init = function() {
+    logger.log("init");
     if(this.init) {//`init` on the prototype
       this.init.apply(this, arguments);
     }
@@ -14,7 +17,7 @@ define(["core"], function(boost) {
         if(mixin.initMixin) {
           mixin.initMixin.apply(this);
         }
-        boost.merge(this, mixin);
+        boost.mixin(this, mixin);
         // TODO: should avoid merge `initMixin` in the first place
         delete this.initMixin;
       }, this);
@@ -25,7 +28,8 @@ define(["core"], function(boost) {
     init.apply(this, arguments);
   };
   
-  XObject.mixin = function mixin() {
+  mixin = function() {
+    logger.log("mixin");
     var proto = this.prototype,
         mixins = boost.slice(arguments),
         mx;
@@ -39,11 +43,12 @@ define(["core"], function(boost) {
     return this;
   };
   
-  XObject.extend = function extend(prop) {
-    var key, proto, makeSuper, _super, Child;
+  extend = function extend(prop) {
+    var key, proto, makeSuper, _super, Child, mixins;
     
     _super = this.prototype;
     proto = boost.beget(_super);
+    mixins = boost.slice(arguments, 1);
     
     makeSuper = function(name, fn) {
       return function() {
@@ -58,22 +63,33 @@ define(["core"], function(boost) {
     
     //make `_super`
     for(key in prop) {
-      if(typeof prop[name] === "function" && typeof  _super[name] === "function" && fnTest.test(prop[name]) ) {
-        proto[key] = makeSuper(name, prop[name]);
+      if(typeof prop[key] === "function" && typeof _super[key] === "function" && fnTest.test(prop[key]) ) {
+        proto[key] = makeSuper(key, prop[key]);
       } else {
-        proto[key] = prop[name];
+        // console.log(key, prop[key]);
+        proto[key] = prop[key];
       }
     }
     
     Child = function() {
+      logger.log("construct");
       init.apply(this, arguments);
     };
     Child.prototype = proto;
     Child.prototype.consturcotr = Child;
     Child.extend = extend;
-    Class.mixin = mixin;
-    return Class;
+    Child.mixin = mixin;
+    
+    //do mixin
+    if(mixins && mixins.length) {
+      mixin.apply(Child, mixins);
+    }
+    return Child;
   };
+  
+  XObject.mixin = mixin;
+  
+  XObject.extend = extend;
   
   boost.Object = XObject;
   

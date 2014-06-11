@@ -1,12 +1,12 @@
-define(function() {
+define({
   
-  return function(obj) {
+  beget: function(obj) {
     if(Object.create) {
       return Object.create(obj);
     }
     var F = function() {};
     F.prototype = obj;
     return new F();
-  };
+  }
   
 });

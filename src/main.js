@@ -1,5 +1,5 @@
 require.config({
-  packages: ["core", "dom", "runtime", "promise", "net"]
+  packages: ["core", "dom", "runtime", "promise", "net", "observer"]
 });
 
 define([
@@ -7,7 +7,8 @@ define([
   "dom",
   "runtime",
   "promise",
-  "net"
+  "net",
+  "observer"
 ], function(boost) {
   if(!window.boost) {
     window.boost = boost;

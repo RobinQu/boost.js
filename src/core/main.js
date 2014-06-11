@@ -3,8 +3,8 @@ define([
   "./misc",
   "./guid",
   "./log",
-  "./proto",
-  "./beget"
-], function(mixin, misc, guid, log) {
-  return mixin({mixin:mixin}, misc, guid, log);
+  "./beget",
+  "./proto"
+], function(mixin, misc, guid, log, beget) {
+  return mixin({mixin:mixin}, misc, guid, log, beget);
 });

@@ -1,3 +1,3 @@
-define(["../core", "./base64", "./json"], function(boost) {
+define(["../core", "./base64", "./json", "./object"], function(boost) {
   return boost;
 });
