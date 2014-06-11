@@ -48,4 +48,8 @@ define(["core"], function(boost) {
     return Class;
   };
   
+  boost.Object = XObject;
+  
+  return XObject;
+  
 });
