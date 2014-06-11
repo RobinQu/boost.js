@@ -67,6 +67,23 @@ define(["boost"], function(boost) {
       delete o.bar;
     });
     
+    it("should work on array", function() {
+      
+      var arr = [];
+      
+      var ob = boost.ObjectObserver.create(arr);
+      
+      ob.connect(function(changes) {
+        expect(changes).to.equal(3);
+        ob.disconnect();
+      });
+      
+      arr.push(1);
+      arr.push(2);
+      arr.splice(1, 3);
+      
+    });
+    
   });
   
 
