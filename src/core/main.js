@@ -4,7 +4,10 @@ define([
   "./guid",
   "./log",
   "./beget",
+  "./access",
   "./proto"
-], function(mixin, misc, guid, log, beget) {
-  return mixin({mixin:mixin}, misc, guid, log, beget);
+], function(mixin) {
+  var args = Array.prototype.slice.call(arguments, 1);
+  args.unshift({mixin:mixin});
+  return mixin.apply(null, args);
 });

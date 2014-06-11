@@ -1,62 +1,66 @@
 define(["runtime", "./observable", "./object_observer"], function(boost, Observable, ObjectObserver) {
   
-  var logger = boost.Logger.instrument("pathobserver");
+  var logger = boost.Logger.instrument("path_observer");
   
   var paths = new WeakMap();
   
   var PathObserver = boost.Object.extend({
     
     init: function(obj, path) {
-      this.listeners = new Set();
-      this.isObserving = false;
-      
-      this._indirectHandler = this.indirectHandler.bind(this);
-      this._directHandler = this.directHandler.bind(this);
+      this.segments = {};
+      this.subject = obj;
+      this.path = path;
     },
     
-    _begin: function() {
-      var self = this;
+    _setup: function(pre, teardown) {
+      var self = this,
+          obj, path;
+      
+      obj = pre ? boost.access(this.subject, pre) : this.subject;
+      path = pre ? this.path.slice(pre.length + 1) : this.path;
+      
       boost.access(obj, path, function(current, key, prefix, end) {
         var ob, handler;
         logger.logger("setup", prefix, key);
-        handler = end ? self._directHandler : self._indirectHandler;
         if(current === null || current === undefined) {
           //do nothing
           logger.logger("unreachabe");
+        } else {
+          if(teardown) {
+            delete self.segments[prefix];
+          } else {
+            self.segments[prefix] = self._createSegmentHandler(current, prefix);
+          }
         }
-        if(typeof current === "object") {
-          ob = ObjectObserver.create(current);
-          ob.connect(handler);
-        }
+        
       });
     },
     
-    _end: function() {
-      var self = this;
-      boost.access(obj, path, function(current, key, prefix, end) {
-        var ob, handler;
-        logger.logger("teardown", prefix, key);
-        handler = end ? self._directHandler : self._indirectHandler;
-        if(current === null || current === undefined) {
-          //do nothing
-          logger.logger("unreachabe");
-        }
-        if(typeof current === "object") {//array
-          ob = ObjectObserver.create(current);
-          ob.disconnect(handler);
-        }
-      });
+    _createSegmentHandler: function(subject, prefix) {
+      var self;
+      return function(changes) {
+        changes.forEach(function(change) {
+          var obj = change.object,
+              type = change.type,
+              name = change.name,
+              value = obj[name];
+          if(type === Observable.Types.ADD && value !== null && typeof value === "object") {//changed from `null|undefined` to an object
+            self._setup(value, [prefix, name].join("."));
+          } else if(type === Observable.Types.DELETE && typeof change.oldValue === "object") {
+            self._setup(value, [prefix, name].join("."), true);
+          }
+          change.path = prefix ? [prefix, name].join(".") : name;
+        });
+        
+        self.notifyChanges(changes);
+      };
     },
-    
-    _indirectHandler: function(changes) {},
-    
-    _directHandler: function(changes) {},
     
     connect: function(fn) {
-      if(fn) {
-        this.listeners.add(fn);
+      if(fn && this.listeners.indexOf(fn) === -1) {
+        this.listeners.push(fn);
         if(!this.isObserving) {
-          this._begin();
+          this._setup();
           this.isObserving = true;
         }
       }
@@ -64,12 +68,12 @@ define(["runtime", "./observable", "./object_observer"], function(boost, Observa
     
     disconnect: function(fn) {
       if(fn) {
-        this.listeners.delete(fn);
+        this.listeners.splice(this.listeners.indexOf(fn), 1);
       } else {
-        this.listeners.clear();
+        this.listeners.length = 0;
       }
-      if(!this.listeners.size) {
-        this._end();
+      if(!this.listeners.length) {
+        this._setup(null, true);
         this.isObserving = false;
       }
     }
@@ -77,11 +81,12 @@ define(["runtime", "./observable", "./object_observer"], function(boost, Observa
   }, Observable);
   
   PathObserver.create = function(obj, path) {
+    if(!obj) {
+      throw new TypeError("Invalid object");
+    }
+    
     if(path === "") {//observe object itself
       return new ObjectObserver(obj);
-    }
-    if(boost.access(obj, path) === null) {
-      throw new Error(path + " is unreachable");
     }
     
     //cache
