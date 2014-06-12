@@ -4,7 +4,7 @@ define(["runtime", "./observable"], function(boost, observable) {
   
   var logger = boost.Logger.instrument("object_observer");
   
-  var ChangeTypes = ["add", "delete", "update", "splice"];
+  var ChangeTypes = ["add", "delete", "update", "reconfigure", "setPrototype", "preventExtensions"];
   
   // we store all objects reference in this map
   // `WeakMap` will reduce cycling refs
@@ -46,10 +46,28 @@ define(["runtime", "./observable"], function(boost, observable) {
         this.isObserving = false;
       }
     },
+    // 
+    // flush: function() {
+    //   logger.log("flush");
+    //   Object.deliverChangeRecords(this._handler);
+    // },
     
-    flush: function() {
-      logger.log("flush");
-      Object.deliverChangeRecords(this._handler);
+    performChange: function(type, fn, toNotify) {
+      var notifier = Object.getNotifier(this.subject);
+      notifier.performChange(fn);
+      if(toNotify) {
+        notifier.notify({
+          object: this.subject,
+          type: type
+        });
+      }
+      return this;
+    },
+    
+    notify: function(notification) {
+      var notifier = Object.getNotifier(this.subject);
+      notifier.notify(notification);
+      return this;
     },
     
     isObjectObserver: true

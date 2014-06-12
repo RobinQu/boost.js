@@ -37,7 +37,7 @@ define(["boost"], function(boost) {
       setTimeout(function() {
         a.b.c = 2;
       }, 100);
-      
+      // a.b.c = 2;
       
       setTimeout(function() {
         expect(callback.callCount).to.equal(2);

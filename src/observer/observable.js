@@ -14,7 +14,10 @@ define(["runtime"], function(boost) {
     Types: {
       ADD: "add",
       UPDATE: "update",
-      DELETE: "delete"
+      DELETE: "delete",
+      SET_PROTOTYPE: "setPrototype",
+      PREVEMT_EXTENSIONS: "preventExtensions",
+      RECONFIGURE: "reconfigure"
     },
   
     _notifyChanges: function(changes) {
@@ -69,6 +72,7 @@ define(["runtime"], function(boost) {
         
       }
     }
+    
   
   };
   

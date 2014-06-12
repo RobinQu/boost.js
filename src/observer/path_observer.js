@@ -61,8 +61,13 @@ define(["runtime", "./observable", "./object_observer", "./change"], function(bo
     
     _createSegmentHandler: function(subject, prefix) {
       var self = this;
+      
       return function(changes) {
-        logger.log("notify changes %s", changes.length);
+        logger.log("notify changes %s, isObserving %s", changes.length, self.isObserving);
+        
+        if(!self.isObserving) {//skip notification if we are not observing
+          return;
+        }
         
         changes = changes.map(function(change) {
           // console.log(change.object);
@@ -112,6 +117,34 @@ define(["runtime", "./observable", "./object_observer", "./change"], function(bo
       if(!this.listeners.length) {
         this._setup(null, true);
         this.isObserving = false;
+      }
+    },
+    
+    perfromChange: function(type, fn, toNotify) {
+      this.isObserving = false;
+      try {
+        fn();
+      } catch(e) {
+        logger.error(e.stack ? e.stack : e);
+      } finally {
+        this.isObserving = true;
+      }
+      if(toNotify) {
+        this.notify({
+          object: this,
+          type: type
+        });
+      }
+    },
+    
+    notify: function(notification) {
+      var target = boost.access(this.subject, this.path),
+          notifier;
+      if(target) {
+        notifier = Object.getNotifier(target);
+        notifier.notify(notification);
+      } else {
+        throw new Error("target not reached");
       }
     }
     
