@@ -1,5 +1,9 @@
 define(["runtime", "./observable", "./object_observer", "./change"], function(boost, Observable, ObjectObserver, Change) {
   
+  if(!Object.observe) {
+    return;
+  }
+  
   var logger = boost.Logger.instrument("path_observer");
   
   var paths = new WeakMap();

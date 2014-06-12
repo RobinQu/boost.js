@@ -1,5 +1,10 @@
 define(["boost"], function(boost) {
   
+  if(!boost.PathObserver) {//skip test if we don't support it
+    return;
+  }
+  
+  
   describe("PathObserver", function() {
     
     it("should observe nested path", function(done) {

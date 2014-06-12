@@ -1,5 +1,9 @@
 define(["boost"], function(boost) {
   
+  if(!boost.ObjectObserver) {//skip test if we don't support it
+    return;
+  }
+  
   describe("ObjectObserver", function() {
     
     var o = {},
