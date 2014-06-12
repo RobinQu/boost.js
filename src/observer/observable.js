@@ -17,7 +17,7 @@ define(["runtime"], function(boost) {
       DELETE: "delete"
     },
   
-    notifyChanges: function(changes) {
+    _notifyChanges: function(changes) {
       logger.log("handler, listeners %s, changes %s", this.listeners.length, changes.length);
       var sorted = {};
       changes.forEach(function(change) {
@@ -26,7 +26,6 @@ define(["runtime"], function(boost) {
         sorted[type].push(change);
       });
       
-      // console.log(sorted);
       
       this.listeners.forEach(function(l) {
         
@@ -39,8 +38,13 @@ define(["runtime"], function(boost) {
             return sorted[cur] ? prev.concat(sorted[cur]) : prev;
           }, []);
         }
+        try {
+          l.call(this, wanted);
+        } catch(e) {
+          logger.error(e.stack ? e.stack : e);
+        }
         // console.log(wanted[0]);
-        l.call(this, wanted);
+        
       }, this);
     
     },

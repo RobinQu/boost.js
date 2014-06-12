@@ -1,4 +1,4 @@
-define(["runtime", "./observable", "./object_observer"], function(boost, Observable, ObjectObserver) {
+define(["runtime", "./observable", "./object_observer", "./change"], function(boost, Observable, ObjectObserver, Change) {
   
   var logger = boost.Logger.instrument("path_observer");
   
@@ -17,28 +17,43 @@ define(["runtime", "./observable", "./object_observer"], function(boost, Observa
       var self = this,
           obj, path;
       
-      
-      obj = pre ? boost.access(this.subject, pre) : this.subject;
-      path = pre ? this.path.slice(pre.length + 1) : this.path;
-      logger.log(teardown ? "teardown" : "setup", obj, path);
+      if(pre) {
+        path = this.path.slice(pre.length+1);
+        obj =  boost.access(this.subject, pre);
+      } else {
+        obj = this.subject;
+        path = this.path;
+      }
 
-      boost.access(obj, path, function(current, key, prefix, end) {
+      logger.log(teardown ? "teardown" : "setup", pre, path, obj);
+
+      boost.access(obj, path, function(current, key, path, end) {
         var ob, handler;
-        logger.log("access", prefix, key);
+
+        // console.log(pre, path);
+        if(path) {
+          path = pre ? [pre, path].join(".") : path;
+        } else {//nested root
+          path = pre;
+        }
+
+        logger.log("access", current, path, key);
         if(current === null || current === undefined) {
           //do nothing
-          logger.log("unreachabe");
+          logger.log("not reachable");
         } else if(typeof current === "object") {
           if(teardown) {
-            logger.log("remove", current, prefix);
-            handler = self.segments[prefix];
+            logger.log("remove", current, path);
+            handler = self.segments[path];
             Object.unobserve(current, handler);
-            delete self.segments[prefix];
+            delete self.segments[path];
           } else {
-            logger.log("add", current, prefix);
-            handler = self.segments[prefix] = self._createSegmentHandler(current, prefix);
+            logger.log("add", current, path);
+            handler = self.segments[path] = self._createSegmentHandler(current, path);
             Object.observe(current, handler);
           }
+        } else {
+          logger.log("not observable");
         }
         
       });
@@ -47,24 +62,35 @@ define(["runtime", "./observable", "./object_observer"], function(boost, Observa
     _createSegmentHandler: function(subject, prefix) {
       var self = this;
       return function(changes) {
-        logger.log("notify");
-        changes.forEach(function(change) {
+        logger.log("notify changes %s", changes.length);
+        
+        changes = changes.map(function(change) {
+          // console.log(change.object);
           var obj = change.object,
               type = change.type,
               name = change.name,
-              value = obj[name];
+              value = obj[name],
+              path = prefix ? [prefix, name].join(".") : name;
+            
+        
           if(type === Observable.Types.ADD && value !== null && typeof value === "object") {//changed from `null|undefined` to an object
-            self._setup(value, [prefix, name].join("."));
+            self._setup(path);
           } else if(type === Observable.Types.DELETE && typeof change.oldValue === "object") {
-            self._setup(value, [prefix, name].join("."), true);
+            self._setup(path, true);
           }
-          
-          // `change` is sealed
-          // change.path = (prefix ? [prefix, name].join(".") : name);
+        
+          // `change` is sealed, so we create a new `Change`
+          var c = new Change(change, path, self.path.slice(path.length + 1));
+          console.log(c);
+          return c;
+        
         });
-
-        self.notifyChanges(changes);
+        
+        self._notifyChanges(changes);
+        
+        
       };
+      
     },
     
     connect: function(fn) {
@@ -88,6 +114,7 @@ define(["runtime", "./observable", "./object_observer"], function(boost, Observa
         this.isObserving = false;
       }
     }
+    
     
   }, Observable);
   

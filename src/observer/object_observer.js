@@ -20,7 +20,6 @@ define(["runtime", "./observable"], function(boost, observable) {
       logger.log("construct");
       this.subject = obj;
       this.filter = filter;
-      
     },
     
     connect: function(fn, filter) {
@@ -31,7 +30,7 @@ define(["runtime", "./observable"], function(boost, observable) {
       
       if(!this.isObserving) {
         logger.log("observe", this.subject);
-        this._handler = this.notifyChanges.bind(this);
+        this._handler = this._notifyChanges.bind(this);
         Object.observe(this.subject, this._handler);
       }
       this._addObserver(fn, filter);

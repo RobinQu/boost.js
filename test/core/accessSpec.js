@@ -22,7 +22,7 @@ define(["boost"], function(boost) {
       
       boost.access(obj, "a.b.c.d", callback);
       
-      expect(callback.callCount).to.equal(4);
+      expect(callback.callCount).to.equal(5);
       expect(callback.lastCall.calledWith(1)).to.be.ok;
       
     });
