@@ -1,5 +1,9 @@
 define(["boost"], function(boost) {
   
+  if(!boost.Binding) {
+    return;
+  }
+  
   describe("boost.Binding", function() {
     
     it("should work in bi-direction", function(done) {

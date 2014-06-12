@@ -1,5 +1,9 @@
 define(["runtime", "./path_observer"], function(boost, PathObserver) {
   
+  if(!Object.observe) {
+    return;
+  }
+  
   // Binding
   // Binding.from(obj1, "foo.bar").to(obj2, "foo.bar");
   

@@ -124,33 +124,6 @@ define(["runtime", "./observable", "./object_observer", "./change"], function(bo
       }
     },
     
-    performChange: function(type, fn) {
-      console.log("perfrom change");
-      // this.isObserving = false;
-      // try { fn(); } catch(e) {
-      //   logger.error(e.stack ? e.stack : e);
-      //   
-      // } finally {
-      //   this.isObserving = true;
-      // }
-      // 
-      // if(type) {
-      //   this.notify({
-      //     object: this,
-      //     type: type
-      //   });
-      // }
-      // var notifiers = [],
-      //     i;
-      // boost.access(this.subject, this.path, function(current) {
-      //   notifiers.push(Object.getNotifier(current));
-      // });
-      // i = notifiers.length;
-      
-      
-      
-    },
-    
     notify: function(notification) {
       var target = boost.access(this.subject, this.path),
           notifier;
