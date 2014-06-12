@@ -22,6 +22,11 @@ define(["runtime"], function(boost) {
   
     _notifyChanges: function(changes) {
       logger.log("handler, listeners %s, changes %s", this.listeners.length, changes.length);
+      
+      if(!this.isObserving) {//skip notification if we are not observing
+        return;
+      }
+      
       var sorted = {};
       changes.forEach(function(change) {
         var type = change.type;

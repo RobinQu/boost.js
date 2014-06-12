@@ -2,7 +2,7 @@
 define(["boost"], function(boost) {
   "use strict";
   
-  boost.instrument("observable, path_observer,object");
+  boost.instrument("binding");
   
   describe("boost.js", function() {
     it("should exist in global", function() {

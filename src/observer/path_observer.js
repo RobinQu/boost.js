@@ -74,7 +74,7 @@ define(["runtime", "./observable", "./object_observer", "./change"], function(bo
         }
         
         changes = changes.map(function(change) {
-          // console.log(change.object);
+          // console.log(change);
           var obj = change.object,
               type = change.type,
               name = change.name,
@@ -90,7 +90,7 @@ define(["runtime", "./observable", "./object_observer", "./change"], function(bo
         
           // `change` is sealed, so we create a new `Change`
           var c = new Change(change, path, self.path.slice(path.length + 1));
-          console.log(c);
+          // console.log(c);
           return c;
         
         });
@@ -124,21 +124,31 @@ define(["runtime", "./observable", "./object_observer", "./change"], function(bo
       }
     },
     
-    perfromChange: function(type, fn, toNotify) {
-      this.isObserving = false;
-      try {
-        fn();
-      } catch(e) {
-        logger.error(e.stack ? e.stack : e);
-      } finally {
-        this.isObserving = true;
-      }
-      if(toNotify) {
-        this.notify({
-          object: this,
-          type: type
-        });
-      }
+    performChange: function(type, fn) {
+      console.log("perfrom change");
+      // this.isObserving = false;
+      // try { fn(); } catch(e) {
+      //   logger.error(e.stack ? e.stack : e);
+      //   
+      // } finally {
+      //   this.isObserving = true;
+      // }
+      // 
+      // if(type) {
+      //   this.notify({
+      //     object: this,
+      //     type: type
+      //   });
+      // }
+      // var notifiers = [],
+      //     i;
+      // boost.access(this.subject, this.path, function(current) {
+      //   notifiers.push(Object.getNotifier(current));
+      // });
+      // i = notifiers.length;
+      
+      
+      
     },
     
     notify: function(notification) {
@@ -148,8 +158,19 @@ define(["runtime", "./observable", "./object_observer", "./change"], function(bo
         notifier = Object.getNotifier(target);
         notifier.notify(notification);
       } else {
-        throw new Error("target not reached");
+        throw new Error("target not reachable");
       }
+    },
+    
+    setValue: function(value) {
+      var notifier, self = this;
+      var ps = this.path.split(".");
+      ps.pop();
+      
+      notifier = Object.getNotifier(boost.access(this.subject, ps.join(".")));
+      notifier.performChange("update", function() {
+        boost.access(self.subject, self.path, null, value);
+      });
     }
     
     
@@ -172,7 +193,6 @@ define(["runtime", "./observable", "./object_observer", "./change"], function(bo
     return obs[path];
   };
   
-  boost.PathObserver = PathObserver;
   
   return PathObserver;
   

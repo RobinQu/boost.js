@@ -32,6 +32,7 @@ define(["runtime", "./observable"], function(boost, observable) {
         logger.log("observe", this.subject);
         this._handler = this._notifyChanges.bind(this);
         Object.observe(this.subject, this._handler);
+        this.isObserving = true;
       }
       this._addObserver(fn, filter);
       return this;
@@ -52,13 +53,23 @@ define(["runtime", "./observable"], function(boost, observable) {
     //   Object.deliverChangeRecords(this._handler);
     // },
     
-    performChange: function(type, fn, toNotify) {
+    performChange: function(fn, type) {
       var notifier = Object.getNotifier(this.subject);
-      notifier.performChange(fn);
-      if(toNotify) {
-        notifier.notify({
+      
+      // While it's nice to play with native API, we don't want to interfere all other observers
+      // notifier.performChange(fn);
+      this.isObserving = false;
+      try { fn(); } catch(e) {
+        logger.error(e.stack ? e.stack : e);
+      }  finally {
+        this.isObserving = true;
+      }
+      
+      if(type) {
+        this.notify({
           object: this.subject,
-          type: type
+          type: type,
+          synthetic: true
         });
       }
       return this;

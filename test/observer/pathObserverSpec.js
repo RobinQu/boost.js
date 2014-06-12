@@ -4,7 +4,6 @@ define(["boost"], function(boost) {
     return;
   }
   
-  
   describe("PathObserver", function() {
     
     it("should observe nested path", function(done) {

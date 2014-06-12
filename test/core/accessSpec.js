@@ -27,6 +27,12 @@ define(["boost"], function(boost) {
       
     });
     
+    it("should set value", function() {
+      
+      boost.access(obj, "a.b.c.d", null, 100);
+      expect(obj.a.b.c.d).to.equal(100);
+    });
+    
   });
   
 });

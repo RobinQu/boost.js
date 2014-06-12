@@ -10,7 +10,6 @@ define(["boost"], function(boost) {
         ob = boost.ObjectObserver.create(o);
     
     it("should respond to addition of new property", function(done) {
-
       ob.connect(function(changes) {
         expect(changes).to.be.ok;
         expect(changes[0].type).to.equal("add");
