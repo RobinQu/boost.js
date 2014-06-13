@@ -10,8 +10,5 @@ define([
   "net",
   "observer"
 ], function(boost) {
-  if(!window.boost) {
-    window.boost = boost;
-  }
   return boost;
 });
