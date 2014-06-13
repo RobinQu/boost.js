@@ -3,8 +3,6 @@ define(["../core"], function(boost) {
   
   var logger = boost.Logger.instrument("promise");
   
-  var id = 0;
-  
   var Deferred = function(onFulfilled, onRejected, resolve, reject) {
     this.onFulfilled = onFulfilled;
     this.onRejected = onRejected;
@@ -20,7 +18,7 @@ define(["../core"], function(boost) {
     this.state = null;
     this.value = null;
     this.deferred = [];
-    this.guid = id++;
+    this.guid = boost.generateGuid("promise");
     this._doResolve(fn);
   };
   

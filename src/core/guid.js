@@ -11,7 +11,7 @@ define({
   
   
   generateGuid: function(obj, prefix) {
-    obj.guid = (prefix || "") + context.getGlobalID();
+    obj.guid = (prefix || "") + this.getGlobalID();
     return obj.guid;
   },
   
