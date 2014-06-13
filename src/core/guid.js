@@ -22,7 +22,7 @@ define({
       if(obj.hash && typeof obj.hash === "function") {
         h.push(obj.hash());
       } else {
-        h.push(context.guidFor(obj));
+        h.push(this.guidFor(obj));
       }
     }
     return h.join("");
@@ -40,7 +40,7 @@ define({
       c = this.guidCache[type];
       ret = c[obj];
       if(!ret) {
-        ret = type + context.generateGuid();
+        ret = type + this.generateGuid();
         c[obj] = ret;
       }
       return ret;
@@ -53,7 +53,7 @@ define({
     }
     // get internal type
     type = Object.prototype.toString.call(obj).slice(8, -1);
-    return context.generateGuid(obj, type);
+    return this.generateGuid(obj, type);
   }
   
 });
