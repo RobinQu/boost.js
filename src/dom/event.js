@@ -1,13 +1,15 @@
 define(["../core", "./data"], function(boost, $data) {
-  var addEvent, removeEvent, normalizeEvent, NO_BUBBLES;
+  var addEvent, removeEvent, normalizeEvent, NO_BUBBLES, logger;
+  
+  logger = boost.Logger.instrument("event");
   
   NO_BUBBLES = ["focus", "change", "submit"];
   
   boost.Event = function(originalEvent) {
     var i, len, k;
     if(originalEvent) {//copy attributes
-      for(i=0,len=Event._props; i<len; i++) {
-        k = Event._props[i];
+      for(i=0,len=boost.Event._props.length; i<len; i++) {
+        k = boost.Event._props[i];
         this[k] = originalEvent[k];
       }
     }
@@ -43,9 +45,12 @@ define(["../core", "./data"], function(boost, $data) {
   addEvent = function(elem, type, capture) {
     var listener = $data(elem, "_listener");
     
+    logger.log("add", elem, type);
+    
     if(!listener) {
-      listener = $data(elem, "_listener", function() {//a shared handler that handles all event stored on the element
-        return boost.Events.handle(elem, arguments);
+      listener = $data(elem, "_listener", function(e) {//a shared handler that handles all event stored on the element
+        logger.log("handle", e.type, elem);
+        return boost.Event.handle(elem, e);
       });
     }
     if(elem.addEventListener) {
@@ -60,7 +65,7 @@ define(["../core", "./data"], function(boost, $data) {
     
     if(listener) {
       if(elem.removeEventListener) {
-        elem.removeEventListener(type, method, false);
+        elem.removeEventListener(type, type, false);
       } else {
         elem.detachEvent("on" + type.toLoserCase(), method);
       }
@@ -68,6 +73,7 @@ define(["../core", "./data"], function(boost, $data) {
   };
   
   normalizeEvent = function(event) {
+    logger.log("normalize", event || window.event);
     if(window.event === event) {
       return new boost.Event(event);
     }
@@ -84,11 +90,11 @@ define(["../core", "./data"], function(boost, $data) {
     add: function(eventType, elem, handler, capture) {
       if(elem.length > 0) {
         elem.forEach(function(el) {
-          Events.on(el, elem[i], handler);
+          boost.Event.add(el, elem[i], handler);
         });
         return this;
       }
-    
+      
       var events, handlers, method;
     
       if(elem.nodeType === 3 || elem.nodeType === 8) { return this; }
@@ -107,8 +113,10 @@ define(["../core", "./data"], function(boost, $data) {
         handlers = events[eventType] = {};
       }
       handlers[boost.hashFor(handler.context, handler.method)] = handler;
+      
       //disable capture by default
       addEvent(elem, eventType, method, false);
+      logger.log("after add", handlers);
       return this;
     },
     
@@ -176,7 +184,7 @@ define(["../core", "./data"], function(boost, $data) {
       for(k in events) {
         break;
       }
-      if(!key) {//no other events found, then cleanup stored data
+      if(!k) {//no other events found, then cleanup stored data
         $data(elem, "_events", null);
         $data(elem, "_listener", null);
       }
@@ -233,12 +241,13 @@ define(["../core", "./data"], function(boost, $data) {
       // args = Array.prototype.slice.call(arguments, 0);
       // elem = args.shift();
       event = normalizeEvent(event || window.event);
-    
+
       handlers = ($data(elem, "_events") || {})[event.type];
+      logger.log("handlers", event.type, handlers && handlers.length);
       if(!handlers) {
         return false;
       }
-    
+      args = args || [];
       args.unshift(event);
       for(k in handlers) {
         handler = handlers[k];

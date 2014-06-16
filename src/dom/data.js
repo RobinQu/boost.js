@@ -10,11 +10,16 @@ define(function() {
     } else {
       entryKey = elem[cacheKey];
     }
+    
     if(entryKey) {
       data = cache[entryKey];
     } else {
-      uuid++
-      elem.dataset[cacheKey] = uuid;
+      uuid++;
+      if(elem.dataset) {
+        elem.dataset[cacheKey] = uuid;
+      } else {
+        elem[cacheKey] = uuid;
+      }
       data = cache[uuid] = {};
     }
     if(value || value === null) {//setter
