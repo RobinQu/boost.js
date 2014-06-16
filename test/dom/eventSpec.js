@@ -31,6 +31,14 @@ define(["boost"], function(boost) {
       
     });
     
+    it("should ignore duplicate handler", function() {
+      var callback = sinon.spy();
+      boost.$(document).on("click", callback);
+      boost.$(document).on("click", callback);
+      dispatchClickEvent();
+      expect(callback.callCount).to.equal(1);
+    });
+    
     
   });
   

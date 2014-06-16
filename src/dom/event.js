@@ -5,11 +5,11 @@ define(["../core", "./data"], function(boost, $data) {
   
   NO_BUBBLES = ["focus", "change", "submit"];
   
-  boost.Event = function(originalEvent) {
+  EventObject = function(originalEvent) {
     var i, len, k;
     if(originalEvent) {//copy attributes
-      for(i=0,len=boost.Event._props.length; i<len; i++) {
-        k = boost.Event._props[i];
+      for(i=0,len=EventObject._props.length; i<len; i++) {
+        k = EventObject._props[i];
         this[k] = originalEvent[k];
       }
     }
@@ -40,7 +40,7 @@ define(["../core", "./data"], function(boost, $data) {
     
   };
   
-  boost.Event._props = "altKey attrChange attrName bubbles button cancelable charCode clientX clientY ctrlKey currentTarget data detail eventPhase fromElement handler keyCode metaKey newValue originalTarget pageX pageY prevValue relatedNode relatedTarget screenX screenY shiftKey srcElement target timeStamp toElement type view which touches targetTouches changedTouches animationName elapsedTime dataTransfer".split(" ");
+  EventObject._props = "altKey attrChange attrName bubbles button cancelable charCode clientX clientY ctrlKey currentTarget data detail eventPhase fromElement handler keyCode metaKey newValue originalTarget pageX pageY prevValue relatedNode relatedTarget screenX screenY shiftKey srcElement target timeStamp toElement type view which touches targetTouches changedTouches animationName elapsedTime dataTransfer".split(" ");
   
   addEvent = function(elem, type, capture) {
     var listener = $data(elem, "_listener");
@@ -50,7 +50,7 @@ define(["../core", "./data"], function(boost, $data) {
     if(!listener) {
       listener = $data(elem, "_listener", function(e) {//a shared handler that handles all event stored on the element
         logger.log("handle", e.type, elem);
-        return boost.Event.handle(elem, e);
+        return EventObject.handle(elem, e);
       });
     }
     if(elem.addEventListener) {
@@ -75,22 +75,22 @@ define(["../core", "./data"], function(boost, $data) {
   normalizeEvent = function(event) {
     logger.log("normalize", event || window.event);
     if(window.event === event) {
-      return new boost.Event(event);
+      return new EventObject(event);
     }
-    return event.normalized ? event : new boost.Event(event);
+    return event.normalized ? event : new EventObject(event);
   };
   
   
-  boost.mixin(boost.Event, {
+  boost.mixin(EventObject, {
     
     create: function(e) {
-      return new boost.Event(e);
+      return new EventObject(e);
     },
     
     add: function(eventType, elem, handler, capture) {
       if(elem.length > 0) {
         elem.forEach(function(el) {
-          boost.Event.add(el, elem[i], handler);
+          EventObject.add(el, elem[i], handler);
         });
         return this;
       }
@@ -112,7 +112,9 @@ define(["../core", "./data"], function(boost, $data) {
       if(!handlers) {
         handlers = events[eventType] = {};
       }
+      // console.log(boost.hashFor(handler.context, handler.method));
       handlers[boost.hashFor(handler.context, handler.method)] = handler;
+      // console.log(handlers);
       
       //disable capture by default
       addEvent(elem, eventType, method, false);
@@ -243,12 +245,13 @@ define(["../core", "./data"], function(boost, $data) {
       event = normalizeEvent(event || window.event);
 
       handlers = ($data(elem, "_events") || {})[event.type];
-      logger.log("handlers", event.type, handlers && handlers.length);
+      // logger.log("handlers", event.type, handlers && handlers.length);
       if(!handlers) {
         return false;
       }
       args = args || [];
       args.unshift(event);
+      // console.log(handlers);
       for(k in handlers) {
         handler = handlers[k];
         ret = handler.method.apply(handler.context, args);
@@ -266,7 +269,7 @@ define(["../core", "./data"], function(boost, $data) {
     
   });
   
-  boost.Event.prototype = {
+  EventObject.prototype = {
     
     preventDefault: function() {
       var event = this.originalEvent;
@@ -296,5 +299,5 @@ define(["../core", "./data"], function(boost, $data) {
     
   };
   
-  return boost.Event;
+  return EventObject;
 });
