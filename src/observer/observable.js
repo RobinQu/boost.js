@@ -1,4 +1,4 @@
-define(["runtime"], function(boost) {
+define(["../runtime"], function(boost) {
   
   var logger = boost.Logger.instrument("observable");
   

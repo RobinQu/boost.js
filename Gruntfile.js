@@ -40,6 +40,9 @@ module.exports = function(grunt) {
     },
     
     requirejs: {
+      options: {
+        packages: ["core", "dom", "runtime", "promise", "net", "observer"]
+      },
       compile: {
         options: {
           baseUrl: "src",
@@ -48,7 +51,7 @@ module.exports = function(grunt) {
           include: ["main"],
           insertRequire: ["main"],
           optimize: "none",
-          packages: ["core", "dom", "runtime", "promise", "net"],
+          
           // skipModuleInsertion: true,
           wrap: {
             startFile: "misc/start.js.frag",
@@ -59,6 +62,39 @@ module.exports = function(grunt) {
           findNestedDependencies: true,
           almond: true,
           preserveLicenseComments: false
+        }
+      },
+      modules: {
+        options: {
+          removeCombined: true,
+          findNestedDependencies: true,
+          baseUrl: "src",
+          dir: "build/standalone",
+          modules: [
+            {
+              name: "core"
+            },
+            {
+              name: "runtime",
+              exclude: ["core"]
+            },
+            {
+              name: "dom",
+              exclude: ["core"]
+            },
+            {
+              name: "net",
+              exclude: ["core", "runtime"]
+            },
+            {
+              name: "observer",
+              exclude: ["core", "runtime"]
+            },
+            {
+              name: "promise",
+              exclude: ["core"]
+            }
+          ]
         }
       }
     },

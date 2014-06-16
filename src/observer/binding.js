@@ -1,4 +1,4 @@
-define(["runtime", "./path_observer"], function(boost, PathObserver) {
+define(["../runtime", "./path_observer"], function(boost, PathObserver) {
   
   if(!Object.observe) {
     return;

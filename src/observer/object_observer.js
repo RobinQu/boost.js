@@ -1,4 +1,4 @@
-define(["runtime", "./observable"], function(boost, observable) {
+define(["../runtime", "./observable"], function(boost, observable) {
   
   if(!Object.observe) {return;}
   

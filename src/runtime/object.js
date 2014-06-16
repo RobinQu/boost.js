@@ -1,4 +1,4 @@
-define(["core"], function(boost) {
+define(["../core"], function(boost) {
   
   var logger = boost.Logger.instrument("object");
   

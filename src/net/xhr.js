@@ -92,7 +92,6 @@ define(["../core", "../runtime"], function(boost) {
           var str = xhr.getAllResponseHeaders() || "",
               match,
               ret = {};
-          
           while(!!(match = rheaders.exec(str))) {
             ret[match[1].toLowerCase()] = match[2];
           }
@@ -166,9 +165,11 @@ define(["../core", "../runtime"], function(boost) {
   };
   
   boost.Request = Request;
+  
   boost.ajax = function(options) {
     var r = new Request(options);
     return r.end();
   };
+  
   return Request;
 });

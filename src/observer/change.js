@@ -1,4 +1,4 @@
-define(["runtime"], function(boost) {
+define(["../runtime"], function(boost) {
   
   var Change = function(change, prefix, path) {
     this.name = change.name;

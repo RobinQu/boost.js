@@ -1,6 +1,6 @@
 /* Array subclass */
 
-define(["core"], function(boost) {
+define(["../core"], function(boost) {
   
   Array.extend = function(props) {
     

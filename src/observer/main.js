@@ -1,4 +1,4 @@
-define(["core", "./object_observer", "./path_observer", "./binding"], function(boost, ObjectObserver, PathObserver, Binding) {
+define(["../core", "./object_observer", "./path_observer", "./binding"], function(boost, ObjectObserver, PathObserver, Binding) {
   
   boost.ObjectObserver = ObjectObserver;
   
