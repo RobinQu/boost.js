@@ -2,7 +2,7 @@ define(["./event", "./closest"], function(Event, closest) {
   
   var delegation = {};
   
-  delegation.bind = function(el, eventType, fn, capture) {
+  delegation.bind = function(el, eventType, selector, fn, capture) {
     return Event.add(el, eventType, function(e) {
       e.delegateTarget = closest(e.target, selector, true, el);
       if(e.delegateTarget) {

@@ -19,7 +19,7 @@ define({
     var i, len, obj, h = [];
     for(i=0,len=arguments.length; i<len; i++) {
       obj = arguments[i];
-      if(obj.hash && typeof obj.hash === "function") {
+      if(obj && obj.hash && typeof obj.hash === "function") {
         h.push(obj.hash());
       } else {
         h.push(this.guidFor(obj));

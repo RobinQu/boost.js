@@ -49,7 +49,7 @@ define(["../core", "./data"], function(boost, $data) {
       });
     }
     if(elem.addEventListener) {
-      elem.addEventListner(type, listener, !!capture);
+      elem.addEventListener(type, listener, !!capture);
     } else {
       elem.attachEvent("on" + type.toLowerCase(), listener);
     }
@@ -81,7 +81,7 @@ define(["../core", "./data"], function(boost, $data) {
       return new boost.Event(e);
     },
     
-    add: function(eventType, elem, hanlder, capture) {
+    add: function(eventType, elem, handler, capture) {
       if(elem.length > 0) {
         elem.forEach(function(el) {
           Events.on(el, elem[i], handler);
@@ -92,7 +92,6 @@ define(["../core", "./data"], function(boost, $data) {
       var events, handlers, method;
     
       if(elem.nodeType === 3 || elem.nodeType === 8) { return this; }
-    
       if(typeof handler === "function") {// a simple function
         method = handler;
         handler = {
@@ -107,9 +106,9 @@ define(["../core", "./data"], function(boost, $data) {
       if(!handlers) {
         handlers = events[eventType] = {};
       }
-      handlers[context.hashFor(handler.context, handler.method)] = handler;
+      handlers[boost.hashFor(handler.context, handler.method)] = handler;
       //disable capture by default
-      addEvent(elem, type, method, false);
+      addEvent(elem, eventType, method, false);
       return this;
     },
     
@@ -131,7 +130,7 @@ define(["../core", "./data"], function(boost, $data) {
       });
     
       if(attrs) {
-        context.mixin(event, attrs);
+        boost.mixin(event, attrs);
       }
       return event;
     },
@@ -151,7 +150,7 @@ define(["../core", "./data"], function(boost, $data) {
       
         if(handler) {//remove specific event registeration
           // removeEvent(elem, eventType, handler.method || handler);
-          delete handlers[context.hashFor(handler.context, handler.method)];
+          delete handlers[boost.hashFor(handler.context, handler.method)];
           k = null;
           for(k in handlers) {//check for other handlers
             break;

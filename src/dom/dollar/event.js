@@ -5,7 +5,7 @@ define(["../event", "../delegation"], function(Event, delegation) {
   events.on = function(eventType, selector, fn, capture) {
     if(typeof selector === "string") {//do delegation
       return this.forEach(function(el) {
-        
+        delegation.bind(el, eventType, selector, fn, capture);
       });
     }
     
