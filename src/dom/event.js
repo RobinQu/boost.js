@@ -45,7 +45,7 @@ define(["../core", "./data"], function(boost, $data) {
     
     if(!listener) {
       listener = $data(elem, "_listener", function() {//a shared handler that handles all event stored on the element
-        return Events.handle(elem, arguments);
+        return boost.Events.handle(elem, arguments);
       });
     }
     if(elem.addEventListener) {
