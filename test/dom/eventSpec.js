@@ -20,7 +20,6 @@ define(["boost"], function(boost) {
     it("should remove handler and won't trigger", function() {
       var callback = sinon.spy();
       boost.$(document).on("click", callback);
-      // document.body.click();
       
       dispatchClickEvent();
       expect(callback.called).to.be.ok;
@@ -33,11 +32,16 @@ define(["boost"], function(boost) {
     
     it("should ignore duplicate handler", function() {
       var callback = sinon.spy();
+
       boost.$(document).on("click", callback);
       boost.$(document).on("click", callback);
       dispatchClickEvent();
+      // console.log(callback.callCount);
       expect(callback.callCount).to.equal(1);
+      
     });
+    
+    
     
     
   });

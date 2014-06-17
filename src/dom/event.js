@@ -46,13 +46,15 @@ define(["../core", "./data"], function(boost, $data) {
     var listener = $data(elem, "_listener");
     
     logger.log("add", elem, type);
-    
+    // console.log(listener);
     if(!listener) {
+      console.log("make listener");
       listener = $data(elem, "_listener", function(e) {//a shared handler that handles all event stored on the element
         logger.log("handle", e.type, elem);
         return EventObject.handle(elem, e);
       });
     }
+    console.log($data(elem, "_listener"));
     if(elem.addEventListener) {
       elem.addEventListener(type, listener, !!capture);
     } else {
@@ -60,14 +62,15 @@ define(["../core", "./data"], function(boost, $data) {
     }
   };
   
-  removeEvent = function(elem, type) {
+  removeEvent = function(elem, type, capture) {
     var listener = $data(elem, "_listener");
     
     if(listener) {
+      
       if(elem.removeEventListener) {
-        elem.removeEventListener(type, type, false);
+        elem.removeEventListener(type, listener, !!capture);
       } else {
-        elem.detachEvent("on" + type.toLoserCase(), method);
+        elem.detachEvent("on" + type.toLoserCase(), listener);
       }
     }
   };
@@ -117,8 +120,7 @@ define(["../core", "./data"], function(boost, $data) {
       // console.log(handlers);
       
       //disable capture by default
-      addEvent(elem, eventType, method, false);
-      logger.log("after add", handlers);
+      addEvent(elem, eventType, false);
       return this;
     },
     
@@ -154,13 +156,19 @@ define(["../core", "./data"], function(boost, $data) {
       }
       var handlers, events, k, clean;
       clean = false;
+      
+      logger.log("remove", elem, eventType);
+      
       events = $data(elem, "_events");
       if(eventType) {
         handlers = events[eventType];
       
         if(handler) {//remove specific event registeration
           // removeEvent(elem, eventType, handler.method || handler);
+          handler = typeof handler === "function" ? {context:null, method:handler} : handler;
+          // console.log(boost.hashFor(handler.context, handler.method));
           delete handlers[boost.hashFor(handler.context, handler.method)];
+          
           k = null;
           for(k in handlers) {//check for other handlers
             break;
@@ -176,11 +184,11 @@ define(["../core", "./data"], function(boost, $data) {
           Events.remove(elem, events[k]);
         }
       }
+      
       if(clean) {
         delete events[eventType];
         removeEvent(elem, eventType);
       }
-    
       // check if we need to clean `events`
       k = null;
       for(k in events) {
@@ -190,7 +198,6 @@ define(["../core", "./data"], function(boost, $data) {
         $data(elem, "_events", null);
         $data(elem, "_listener", null);
       }
-    
       return this;
     }, 
     
@@ -210,7 +217,7 @@ define(["../core", "./data"], function(boost, $data) {
       }
       event = args[0];
       if(!event) {//when trigger a custom event, no acutal event is given
-        event = Events.simulate(elem, eventType);
+        event = EventObject.simulate(elem, eventType);
         args.unshift(event);
       }
       event.type = eventType;
@@ -245,7 +252,7 @@ define(["../core", "./data"], function(boost, $data) {
       event = normalizeEvent(event || window.event);
 
       handlers = ($data(elem, "_events") || {})[event.type];
-      // logger.log("handlers", event.type, handlers && handlers.length);
+      logger.log("invoke", elem, event.type, handlers);
       if(!handlers) {
         return false;
       }
@@ -298,6 +305,8 @@ define(["../core", "./data"], function(boost, $data) {
     normalized: true
     
   };
+  
+  boost.Event = EventObject;
   
   return EventObject;
 });

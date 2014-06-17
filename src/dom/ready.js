@@ -10,8 +10,9 @@ define(["../core"], function(boost) {
     //mark ready
     DOMReady = true;
     
+    // console.log(document.removeChild);
     //remove listeners for ready events
-    if(document.removeEvnetListener) {
+    if(document.removeEventListener) {
       document.removeEventListener("DOMContentLoaded", notfiyDOMReady);
     } else {
       document.detachEvent("onreadystatechange", notifiyReadStateChange);
@@ -27,7 +28,7 @@ define(["../core"], function(boost) {
     };
     //FIFO
     while(listeners.length) {
-      invoke(listners.shift());
+      invoke(listeners.shift());
     }
   };
   
@@ -45,7 +46,7 @@ define(["../core"], function(boost) {
       return;
     }
     try {
-      documnet.documentElement.doScroll("left");
+      document.documentElement.doScroll("left");
     } catch(e) {
       setTimeout(doScrollCheck, 5);
       return;
