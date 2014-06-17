@@ -38,11 +38,31 @@ define(["boost"], function(boost) {
       dispatchClickEvent();
       // console.log(callback.callCount);
       expect(callback.callCount).to.equal(1);
-      
+      boost.$(document).off("click");
     });
     
+    it("should mimick an event and do propgation", function() {
+      var callback = sinon.spy();
+      
+      boost.$(document).on("click", callback);
+      boost.$(document).trigger("click");
+      expect(callback.callCount).to.equal(1);
+    });
     
+    it("should support extra arguments", function() {
+      var callback = sinon.spy();
+      boost.$(document).on("click", callback);
+      boost.$(document).trigger("click", 1);
+      expect(callback.callCount).to.equal(1);
+      expect(callback.firstCall.args[1]).to.equal(1);
+    });
     
+    it("should support custom event", function() {
+      var callback = sinon.spy();
+      boost.$(document).on("boom", callback);
+      boost.$(document).trigger("boom");
+      expect(callback.callCount).to.equal(1);
+    });
     
   });
   

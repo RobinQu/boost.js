@@ -31,6 +31,13 @@ define(["../event", "../delegation"], function(Event, delegation) {
     });
   };
   
+  events.trigger = function(eventType) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return this.forEach(function(el) {
+      Event.trigger(el, eventType, args);
+    });
+  };
+  
   return events;
   
 });

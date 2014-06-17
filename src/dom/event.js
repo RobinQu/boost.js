@@ -36,7 +36,7 @@ define(["../core", "./data"], function(boost, $data) {
       this.which = this.charCode || this.keyCode;
     }
     
-    //TOOD: metakey, mousewheel, wheelDelta
+    //TODO: metakey, mousewheel, wheelDelta
     
   };
   
@@ -48,13 +48,12 @@ define(["../core", "./data"], function(boost, $data) {
     logger.log("add", elem, type);
     // console.log(listener);
     if(!listener) {
-      console.log("make listener");
       listener = $data(elem, "_listener", function(e) {//a shared handler that handles all event stored on the element
         logger.log("handle", e.type, elem);
         return EventObject.handle(elem, e);
       });
     }
-    console.log($data(elem, "_listener"));
+
     if(elem.addEventListener) {
       elem.addEventListener(type, listener, !!capture);
     } else {
@@ -126,7 +125,7 @@ define(["../core", "./data"], function(boost, $data) {
     
     simulate: function(elem, eventType, attrs) {
       // mock an event object
-      var event = new E({
+      var event = new EventObject({
         type: eventType,
         target: elem,
         preventDefault: function() {
@@ -205,27 +204,28 @@ define(["../core", "./data"], function(boost, $data) {
       var fn, event, current, ret;
       if(elem.length && elem.length > 0) {
         elem.forEach(function(el) {
-          Events.trigger(el, eventType);
+          EventObject.trigger(el, eventType, args);
         });
         return this;
       }
-      if(elem.nodeType === 3 || elem.nodeType === 8) {
+      if(elem.nodeType === 3 || elem.nodeType === 8) {//leave out text nodes and comment nodes
         return this;
       }
       if(typeof elem[eventType] === "function") {//native event type
         fn = elem[eventType];
       }
-      event = args[0];
-      if(!event) {//when trigger a custom event, no acutal event is given
+      event = args && args[0] ? args[0] : args;
+      if(!event || !event.preventDefault) {//when trigger a custom event, no acutal event is given
         event = EventObject.simulate(elem, eventType);
-        args.unshift(event);
+        // args.unshift(event);
       }
       event.type = eventType;
+      
     
       //trigger custom events; do bubbling until `document`
       current = elem;
       do {
-        ret = Events.handle(current, event, args);
+        ret = EventObject.handle(current, event, args);
         current = (current === document) ? null : (current.parentNode || document);
       } while(!ret && event.bubbles && current);
       current = null;
