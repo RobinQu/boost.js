@@ -28,7 +28,7 @@ define(["../../core/misc", "./list", "../query", "../parse", "./traverse", "./ma
     }
     
     if(typeof selector !== "string") {
-      throw new Error("invalid");
+      return new List([selector]);
     }
     
     var html = selector.trim();

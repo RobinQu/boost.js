@@ -1,5 +1,10 @@
 define(function() {
-  var Logger, consoleAdapter, instance, ret = {}, instruments = {};
+  var Logger, consoleAdapter, instance, 
+      ret = {}, 
+      instruments = {},
+      dummy = {};
+  
+  dummy.log = dummy.warn = dummy.info = dummy.debug = function() {};
   
   Logger = function(topic, enabled) {
     if(!(this instanceof Logger)) {
@@ -9,7 +14,7 @@ define(function() {
     this.enabled = enabled !== false;
     this.level = "INFO";
     //default to transport over console
-    this.transport = console;
+    this.transport = window.console ? window.console : dummy;
     this.filter = [];
   };
   

@@ -34,6 +34,42 @@ define(function() {
     };
   }
   
+  if(!Array.prototype.reduce) {
+    Array.prototype.reduce = function(fn, initial) {
+      if(!initial && !this.length) {
+        throw new TypeError("nothing to reduce");
+      }
+      if(initial !== undefined || this.length > 1) {
+        var i,len, prev, next;
+        if(initial) {
+          i = 0;
+          prev = initial;
+        } else {
+          prev = this[0];
+          i = 1;
+        }
+        for(len=this.length;i<len;i++) {
+          prev = fn.call(prev, this[i], i, this);
+        }
+        return prev;
+      } else {
+        return initial || this[0];
+      }
+    };
+  }
+  
+  if(!Object.keys) {
+    Object.keys = function (obj) {
+        var k=[], o;
+        for (o in obj) {
+          if(obj.hasOwnProperty(obj[o])) {
+            k[k.length]=o;
+          }
+        }
+        return k;
+    };
+  }
+  
   return {};
   
 });

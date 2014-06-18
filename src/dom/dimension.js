@@ -1,20 +1,22 @@
 // Dimension API
 
 define(function() {
-
+  
+  
+  // Get scroll offsets
   var getScrollOffsets = function(win) {
     win = win || window;
     var doc = win.document;
     
     if(win.pageXOffset !== undefined) {//IE8+, modern browsers
-      return {left: win.pageXOffset, top: w.pageYOffset};
+      return {left: win.pageXOffset, top: win.pageYOffset};
     }
     
     // For older IE
     if(doc.compatMode === "CSS1Compat") {//Standard mode
-      return {left: documentElement.scrollLeft, top: document.scrollTop};
-    }
-    
+      return {left: doc.documentElement.scrollLeft, top: doc.documentElement.scrollTop};
+    } 
+    // doc.compatMode === `BackCompat`
     // For IE in Quicks mode
     return {left: doc.body.scrollLeft, top: doc.body.scrollTop};
   };
@@ -91,7 +93,7 @@ define(function() {
       e = el;
       while(e) {
         this.left = -e.scrollLeft;
-        this.top = - e.scrollTop;
+        this.top = -e.scrollTop;
         e = e.parentNode;
       }
     }).call(box);

@@ -12,7 +12,7 @@ define(["boost"], function(boost) {
   var root = boost.$(".lab-area");
   
   var handler = function(e) {
-    console.log(e);
+    console.log(e.type);
   };
   
   evts.forEach(function(evt) {
