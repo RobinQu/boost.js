@@ -14,16 +14,10 @@
     iframe = this.frame = div.firstChild;
     poll = function() {
       var hash = self.getHash(),
-          historyHash = iframe.contentWindow.document.body.innerText;
-      // console.log((hash == self.lastHash).toString());
-      // console.log((historyHash == self.lashHash).toString());
-      // console.log(historyHash.length + "--");
-      // console.log(self.lastHash.length + "++");
+          historyHash = self.getHistoryHash();
+
       if(hash !== self.lastHash) {//link clicked
-        // console.log(1);
-        
         self.fireHashChange(self.lastHash, hash);
-        
         //update hash
         self.lastHash = hash;
         self.saveHistory(hash);
@@ -39,10 +33,9 @@
         var doc = iframe.contentWindow.document;
         doc.open();
         //save a empty hash to give a chance to reflect changes to actual hash when page loaded
-        doc.write(self._prepIFrameContent(""));
+        doc.write(self._prepIFrameContent("#"));
         doc.close();
         setInterval(poll, 400);
-        // poll();
       }
     };
     document.body.appendChild(this.frame);
@@ -60,7 +53,7 @@
   };
   
   HCManager.prototype.saveHistory = function (hash) {
-    var historyHash = this.frame.contentWindow.document.body.innerText,
+    var historyHash = this.getHistoryHash(),
         doc = this.frame.contentWindow.document;
     
     if(historyHash !== hash) {//if saved hash doesn't match given hash
@@ -72,7 +65,7 @@
   
   HCManager.prototype.getHash = function (url) {
     url = url || window.document.URL;
-    return url.replace(/^[^#]*#?(.*)$/, "$1");
+    return "#" + url.replace(/^[^#]*#?(.*)$/, "$1");
   };
   
   HCManager.prototype._prepIFrameContent = function (hash, domain) {
