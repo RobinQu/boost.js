@@ -32,7 +32,7 @@ define(["../core", "./data"], function(boost, $data) {
       this.pageY = this.clientY + (doc && doc.scrollTop || body && body.scrollTop || 0) - (doc.clientTop || 0);
     }
     
-    if(!this.which && (originalEvent.charCode === 0 ? this.charCode : this.keyCode)) {
+    if(!this.which) {
       this.which = this.charCode || this.keyCode;
     }
     
